@@ -1,5 +1,5 @@
 <?php
-// $Id: imageapi.module,v 1.1 2007/12/14 13:15:13 dopry Exp $
+// $Id: imageapi.module,v 1.2 2007/12/14 15:16:48 dopry Exp $
 
 /**
  * @file
@@ -180,16 +180,15 @@ function imageapi_image_scale($image, $width, $height, $upscale = FALSE) {
   if (!$upscale && $width >= $image->info['width'] && $height >= $image->info['height']) {
     return $image;
   }
- 
+
   $aspect = $image->info['height'] / $image->info['width'];
   if ($aspect < $height / $width) {
-    $width = (int) min($width, $image->info['width']);
     $height = (int) round($width * $aspect);
   }
   else {
-    $height = (int) min($height, $image->info['height']);
     $width = (int) round($height / $aspect);
   }
+  
   return call_user_func($image->toolkit .'_image_resize', $image, $width, $height);
 }
  
