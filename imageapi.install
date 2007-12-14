@@ -1,0 +1,4 @@
+<?php
+
+function imageapi_install() {
+}

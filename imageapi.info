@@ -1,0 +1,5 @@
+; $Id: imageapi.info,v 1.1 2007/12/14 13:15:13 dopry Exp $
+name = ImageAPI
+description = ImageAPI supporting multiple toolkits.
+package = ImageCache
+version = VERSION
