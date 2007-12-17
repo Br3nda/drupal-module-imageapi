@@ -1,0 +1,174 @@
+<?php
+// $id: $
+
+/**
+ * @file
+ * GD2 toolkit functions
+ */
+
+/**
+ * Implementation of hook_imageapi_toolkit().
+ *
+ * this hook only gets called to see is a module implements the imageapi hooks...
+ */
+function imageapi_gd_imageapi_toolkit() {
+}
+
+
+/**
+ * Settings form for the toolkit.
+ */
+function imageapi_gd_settings_form() {
+  $form['image_jpeg_quality'] = array(
+    '#type' => 'textfield',
+    '#title' => t('JPEG quality'),
+    '#description' => t('Define the image quality for JPEG manipulations. Ranges from 0 to 100. Higher values mean better image quality, but bigger files.'),
+    '#size' => 10,
+    '#maxlength' => 3,
+    '#default_value' => variable_get('image_jpeg_quality', 75),
+    '#field_suffix' => '%',
+  );
+  return system_settings_form($form);
+}
+
+function imageapi_gd_image_open($image) {
+  if ($image->res =  _gd_open($image->source, $image->info['extension'])) {
+    return $image;
+  }
+  return FALSE;
+}
+
+function imageapi_gd_image_close($image, $destination) {
+  return _gd_close($image->res, $destination, $image->info['extension']);
+}
+
+function imageapi_gd_image_crop($image, $x, $y, $width, $height) {
+  $res = imageCreateTrueColor($width, $height);
+  if (!imageCopy($res, $image->res, 0, 0, $x, $y, $width, $height)) {
+    return FALSE;
+  }
+  // destroy the original image and return the modified image.
+  imageDestroy($image->res);
+  $image->res = $res;
+  $image->info['width'] = $width;
+  $image->info['height'] = $height;
+  return $image;
+  
+}
+
+function imageapi_gd_image_resize($image, $width, $height) {
+  $res = imageCreateTrueColor($width, $height);
+  if ($image->info['extension'] == 'png') {
+    $transparency = imagecolorallocatealpha($res, 0, 0, 0, 127);
+    imagealphablending($res, FALSE);
+    imagefilledrectangle($res, 0, 0, $width, $height, $transparency);
+    imagealphablending($res, TRUE);
+    imagesavealpha($res, TRUE);
+  }
+  elseif ($info['extension'] == 'gif') {
+    $transparency = imagecolortransparent($image->res);
+    // If we have a specific transparent color.
+    if ($transparency >= 0) {
+      // Get the original image's transparent color's RGB values.
+      $color = imagecolorsforindex($image->res, $transparency);
+      // Allocate the same color in the new image resource.
+      if (isset($color['alpha'])) {
+        $transparency = imagecolorallocatealpha($res, $color['red'], $color['green'], $color['blue'], $color['alpha']);
+      }
+      else {
+        $transparency = imagecolorallocate($res, $color['red'], $color['green'], $color['blue']);
+      }
+      // Completely fill the background of the new image with allocated color.
+      imagefill($res, 0, 0, $transparency);
+      // Set the background color for new image to transparent.
+      imagecolortransparent($res, $transparency);
+    }
+  }
+  if (!imageCopyResampled($res, $image->res, 0, 0, 0, 0, $width, $height, $image->info['width'], $image->info['height'])) {
+    return FALSE;
+  }
+  imageDestroy($image->res);
+  // update image object
+  $image->res = $res;
+  $image->info['width'] = $width;
+  $image->info['height'] = $width;
+  return $image;
+}
+
+function imageapi_gd_image_rotate($image, $degrees, $bgcolor) {
+  $res = imageRotate($image->res, $degrees, $bgcolor);
+  imageDestroy($image->res);
+  $image->res = $res;
+  return $image;
+} 
+
+function imageapi_gd_image_desaturate($image) {
+  if (function_exists('imagefilter')) { // PHP 5
+    if (!imagefilter($image->res, IMG_FILTER_GRAYSCALE)) {
+       return FALSE;
+    }
+  } 
+  else {                              // PHP < 5
+    $res = imageCreateTrueColor($image->info['width'], $image->info['height']);
+    for ($y = 0; $y < $image->info['height']; ++$y) {
+      for ($x = 0; $x < $image->info['width']; ++$x) {
+        $rgb = imagecolorat($image->res, $x, $y);
+        if (imageistruecolor($image->res)) {
+          $red   = ($rgb >> 16) & 0xFF;
+          $green = ($rgb >> 8)  & 0xFF;
+          $blue  = $rgb & 0xFF;
+        } 
+        else {
+          $rgb = imagecolorsforindex($image->res, $rgb);
+          $red   = $rgb['red'];
+          $green = $rgb['green'];
+          $blue  = $rgb['blue'];
+        }
+         
+        $gray = round(.299*$red + .587*$green + .114*$blue);
+         
+        // shift gray level to the left
+        $grayR = $gray << 16;   // R: red
+        $grayG = $gray << 8;    // G: green
+        $grayB = $gray;         // B: blue
+        $grayColor = $grayR | $grayG | $grayB;
+        
+        // set the pixel color
+        imagesetpixel($res, $x, $y, $grayColor);
+        imagecolorallocate($res, $gray, $gray, $gray);
+      }
+    }
+    imageDestroy($image->res);
+    $image->res = $res;
+  }
+  return $image;
+}
+
+/**
+ * GD helper function to create an image resource from a file.
+ */
+function _gd_open($file, $extension) {
+  $extension = str_replace('jpg', 'jpeg', $extension);
+  $open_func = 'imageCreateFrom'. $extension;
+  if (!function_exists($open_func)) {
+    return FALSE;
+  }
+  return $open_func($file);
+}
+
+/**
+ * GD helper to write an image resource to a destination file.
+ */
+function _gd_close($res, $destination, $extension) {
+  $extension = str_replace('jpg', 'jpeg', $extension);
+  $close_func = 'image'. $extension;
+  if (!function_exists($close_func)) {
+    return FALSE;
+  }
+  if ($extension == 'jpeg') {
+    return $close_func($res, $destination, variable_get('image_jpeg_quality', 75));
+  }
+  else {
+    return $close_func($res, $destination);
+  }
+}
