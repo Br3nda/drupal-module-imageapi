@@ -42,7 +42,7 @@ function imageapi_gd_image_close($image, $destination) {
   return _gd_close($image->res, $destination, $image->info['extension']);
 }
 
-function imageapi_gd_image_crop($image, $x, $y, $width, $height) {
+function imageapi_gd_image_crop(&$image, $x, $y, $width, $height) {
   $res = imageCreateTrueColor($width, $height);
   if (!imageCopy($res, $image->res, 0, 0, $x, $y, $width, $height)) {
     return FALSE;
@@ -52,11 +52,11 @@ function imageapi_gd_image_crop($image, $x, $y, $width, $height) {
   $image->res = $res;
   $image->info['width'] = $width;
   $image->info['height'] = $height;
-  return $image;
+  return TRUE;
   
 }
 
-function imageapi_gd_image_resize($image, $width, $height) {
+function imageapi_gd_image_resize(&$image, $width, $height) {
   $res = imageCreateTrueColor($width, $height);
   if ($image->info['extension'] == 'png') {
     $transparency = imagecolorallocatealpha($res, 0, 0, 0, 127);
@@ -92,17 +92,17 @@ function imageapi_gd_image_resize($image, $width, $height) {
   $image->res = $res;
   $image->info['width'] = $width;
   $image->info['height'] = $width;
-  return $image;
+  return TRUE;
 }
 
-function imageapi_gd_image_rotate($image, $degrees, $bgcolor) {
+function imageapi_gd_image_rotate(&$image, $degrees, $bgcolor) {
   $res = imageRotate($image->res, $degrees, $bgcolor);
   imageDestroy($image->res);
   $image->res = $res;
-  return $image;
+  return TRUE;
 } 
 
-function imageapi_gd_image_desaturate($image) {
+function imageapi_gd_image_desaturate(&$image) {
   if (function_exists('imagefilter')) { // PHP 5
     if (!imagefilter($image->res, IMG_FILTER_GRAYSCALE)) {
        return FALSE;
@@ -141,7 +141,7 @@ function imageapi_gd_image_desaturate($image) {
     imageDestroy($image->res);
     $image->res = $res;
   }
-  return $image;
+  return TRUE;
 }
 
 /**

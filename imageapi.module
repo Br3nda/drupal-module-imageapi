@@ -1,5 +1,5 @@
 <?php
-// $Id: imageapi.module,v 1.2 2007/12/14 15:16:48 dopry Exp $
+// $Id: imageapi.module,v 1.3 2007/12/23 06:27:03 dopry Exp $
 
 /**
  * @file
@@ -147,12 +147,12 @@ function imageapi_get_toolkit() {
  * @return
  *   Modified ImageAPI Image object.
  */
-function imageapi_image_scale_and_crop($image, $width, $height) {
+function imageapi_image_scale_and_crop(&$image, $width, $height) {
   $scale = max($width / $image->info['width'], $height / $image->info['height']);
   $x = round(($image->info['width'] * $scale - $width) / 2);
   $y = round(($image->info['height'] * $scale - $height) / 2);
  
-  if ($image = imageapi_image_resize($image, $image->info['width'] * $scale, $image->info['height'] * $scale)) {
+  if (imageapi_image_resize($image, $image->info['width'] * $scale, $image->info['height'] * $scale)) {
     return imageapi_image_crop($image, $x, $y, $width, $height);
   }
   return FALSE;
@@ -175,10 +175,10 @@ function imageapi_image_scale_and_crop($image, $width, $height) {
  * @return
  *   TRUE or FALSE, based on success.
  */
-function imageapi_image_scale($image, $width, $height, $upscale = FALSE) {
+function imageapi_image_scale(&$image, $width, $height, $upscale = FALSE) {
   // Don't scale up.
   if (!$upscale && $width >= $image->info['width'] && $height >= $image->info['height']) {
-    return $image;
+    return TRUE;
   }
 
   $aspect = $image->info['height'] / $image->info['width'];
@@ -209,7 +209,7 @@ function imageapi_image_scale($image, $width, $height, $upscale = FALSE) {
  * @return
  *   TRUE or FALSE, based on success.
  */
-function imageapi_image_resize($image, $width, $height) {
+function imageapi_image_resize(&$image, $width, $height) {
   return call_user_func($image->toolkit .'_image_resize', $image, $width, $height);
 }
  
@@ -231,7 +231,7 @@ function imageapi_image_resize($image, $width, $height) {
  * @return
  *   TRUE or FALSE, based on success.
  */
-function imageapi_image_rotate($image, $degrees, $bgcolor = 0x000000) {
+function imageapi_image_rotate(&$image, $degrees, $bgcolor = 0x000000) {
   return call_user_func($image->toolkit .'_image_rotate', $image, $degrees, $bgcolor);
 }
  
@@ -251,12 +251,12 @@ function imageapi_image_rotate($image, $degrees, $bgcolor = 0x000000) {
  * @return 
  *   modifed image object.
  */
-function imageapi_image_crop($image, $x, $y, $width, $height) {
+function imageapi_image_crop(&$image, $x, $y, $width, $height) {
   return call_user_func($image->toolkit .'_image_crop', $image, $x, $y, $width, $height);
 }
  
 
-function imageapi_image_desaturate($image) {
+function imageapi_image_desaturate(&$image) {
   return call_user_func($image->toolkit .'_image_desaturate', $image);
 }
 
@@ -273,6 +273,7 @@ function imageapi_image_open($file, $toolkit = FALSE) {
       return $image;
     }
   }
+  watchdog('imageapi', t('ImageAPI failed to open %file with %toolkit', array('%file' => $file, '%toolkit' => $toolkit)), WATCHDOG_WARNING);
   return FALSE;
 }
 
