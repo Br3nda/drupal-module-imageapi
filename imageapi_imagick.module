@@ -39,28 +39,42 @@ function imageapi_imagick_quality_element_validate($element) {
 }
 
 function imageapi_imagick_image_open($image) {
-  if ($image->res =  new Imagick($image->source)) {
+  try {
+    $image->res = new Imagick($image->source);
     $image->res->setCompressionQuality(variable_get('imageapi_imagick_quality', 75));
     return $image;
   }
-  return FALSE;
+  catch(Exception $e) {
+    //print_r($e);
+    return FALSE;
+  }
 }
 
 function imageapi_imagick_image_close($image, $destination) {
-  return $image->res->writeImage($destination);
+  try {
+   $image->res->writeImage($destination);
+  }
+  catch(Exception $e) {
+    //print_r($e);
+    return FALSE;
+  }
 }
 
 function imageapi_imagick_image_crop(&$image, $x, $y, $width, $height) {
-  if ($image->res->cropImage($width, $height, $x, $y)) {
+  try {
+    $image->res->cropImage($width, $height, $x, $y);
     $image->info['width'] = $width;
     $image->info['height'] = $height;
     return TRUE;
   }
-  return FALSE;
+  catch (Exception $e)  {
+    //drupal_set_messge(print_r($e,1));
+    return FALSE;
+  }
 }
 
 function imageapi_imagick_image_resize(&$image, $width, $height) {
-  $image->res->resizeImage($width, $height);
+  $image->res->resizeImage($width, $height, Imagick::FILTER_LANCZOS, 1);
   $image->info['width'] = $width;
   $image->info['height'] = $width;
   return TRUE;
