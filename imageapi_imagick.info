@@ -1,6 +1,5 @@
-; $Id: imageapi_imagick.info,v 1.1 2007/12/23 06:27:03 dopry Exp $
+; $Id: imageapi_imagick.info,v 1.2 2008/02/21 11:21:05 dopry Exp $
 name = ImageAPI Imagick
 description = Experimental Imagick PHP extension image processing support.
 package = ImageCache
-version = VERSION
 dependencies = imageapi
