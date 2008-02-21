@@ -1,5 +1,5 @@
 <?php
-// $Id: imageapi.module,v 1.5 2008/02/21 11:18:34 dopry Exp $
+// $Id: imageapi.module,v 1.6 2008/02/21 12:26:36 dopry Exp $
 
 /**
  * @file
@@ -42,7 +42,7 @@ function imageapi_menu($may_cache) {
         'title' => 'Configure',
         'type' => MENU_LOCAL_TASK,
         'callback' => 'drupal_get_form',
-        'callback arguments' => array(imageapi_get_toolkit() .'_settings_form'),
+        'callback arguments' => array(imageapi_default_toolkit() .'_settings_form'),
       );
       foreach ($toolkits as $module => $info) {
         $items[] = array(
@@ -50,7 +50,7 @@ function imageapi_menu($may_cache) {
           'title' => $info['name'],
           'callback' => 'drupal_get_form',
           'callback arguments' => array($module .'_settings_form'),
-          'type' => $module == imageapi_get_toolkit() ? MENU_DEFAULT_LOCAL_TASK : MENU_LOCAL_TASK,
+          'type' => $module == imageapi_default_toolkit() ? MENU_DEFAULT_LOCAL_TASK : MENU_LOCAL_TASK,
         );
       }
     }
@@ -85,7 +85,7 @@ function imageapi_settings() {
       $form['imageapi_image_toolkit'] = array(
         '#type' => 'radios',
         '#title' => t('Select a default image processing toolkit'),
-        '#default_value' => imageapi_get_toolkit(),
+        '#default_value' => imageapi_default_toolkit(),
         '#options' => $options,
         '#description' => t('This setting lets you choose which toolkit Drupal uses resizing, cropping and other image manipulations.'),
       );
@@ -139,7 +139,7 @@ function imageapi_get_available_toolkits() {
  * @return 
  *   String containing the name of the toolkit, or FALSE if none is available.
  */
-function imageapi_get_toolkit() {
+function imageapi_default_toolkit() {
   $toolkit = variable_get('imageapi_image_toolkit', 'imageapi_gd');
   // Verify that the image toolkit is available.
   if (isset($toolkit) && module_exists($toolkit)) {
@@ -280,7 +280,7 @@ function imageapi_image_desaturate(&$image) {
 
 function imageapi_image_open($file, $toolkit = FALSE) {
   if (!$toolkit) {
-    $toolkit = imageapi_get_toolkit();
+    $toolkit = imageapi_default_toolkit();
   }
   if ($toolkit) {
     $image = new StdClass();

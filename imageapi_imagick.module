@@ -42,12 +42,11 @@ function imageapi_imagick_image_open($image) {
   try {
     $image->res = new Imagick($image->source);
     $image->res->setCompressionQuality(variable_get('imageapi_imagick_quality', 75));
-    return $image;
   }
   catch(Exception $e) {
-    //print_r($e);
     return FALSE;
   }
+  return $image;
 }
 
 function imageapi_imagick_image_close($image, $destination) {
@@ -65,18 +64,22 @@ function imageapi_imagick_image_crop(&$image, $x, $y, $width, $height) {
     $image->res->cropImage($width, $height, $x, $y);
     $image->info['width'] = $width;
     $image->info['height'] = $height;
-    return TRUE;
   }
   catch (Exception $e)  {
-    //drupal_set_messge(print_r($e,1));
     return FALSE;
   }
+  return TRUE;
 }
 
 function imageapi_imagick_image_resize(&$image, $width, $height) {
-  $image->res->resizeImage($width, $height, Imagick::FILTER_LANCZOS, 1);
-  $image->info['width'] = $width;
-  $image->info['height'] = $width;
+  try {
+    $image->res->resizeImage($width, $height, Imagick::FILTER_LANCZOS, 1);
+    $image->info['width'] = $width;
+    $image->info['height'] = $width;
+  }
+  catch (Exception $e)  {
+    return FALSE;
+  }
   return TRUE;
 }
 
