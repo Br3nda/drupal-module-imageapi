@@ -51,7 +51,7 @@ function imageapi_imagick_image_open($image) {
 
 function imageapi_imagick_image_close($image, $destination) {
   try {
-   $image->res->writeImage($destination);
+   return $image->res->writeImage($destination);
   }
   catch(Exception $e) {
     //print_r($e);

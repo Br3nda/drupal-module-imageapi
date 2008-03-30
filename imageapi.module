@@ -1,5 +1,5 @@
 <?php
-// $Id: imageapi.module,v 1.7 2008/03/09 04:46:24 dopry Exp $
+// $Id: imageapi.module,v 1.8 2008/03/30 23:16:45 dopry Exp $
 
 /**
  * @file
@@ -297,5 +297,11 @@ function imageapi_image_open($file, $toolkit = FALSE) {
 }
 
 function imageapi_image_close($image, $destination) {
-  return call_user_func($image->toolkit .'_image_close', $image, $destination);
+  if ($return = call_user_func($image->toolkit .'_image_close', $image, $destination)) {
+    if (@chmod($destination, 0775)) {
+      return $return;
+    } 
+    watchdog('imageapi', t('Could not set permissons on destination file: %file', array('%file' => $image->source)));
+  }
+  return FALSE;
 }
