@@ -91,7 +91,7 @@ function imageapi_gd_image_resize(&$image, $width, $height) {
   // update image object
   $image->res = $res;
   $image->info['width'] = $width;
-  $image->info['height'] = $width;
+  $image->info['height'] = $height;
   return TRUE;
 }
 
