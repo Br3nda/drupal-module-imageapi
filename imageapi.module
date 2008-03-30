@@ -1,5 +1,5 @@
 <?php
-// $Id: imageapi.module,v 1.8 2008/03/30 23:16:45 dopry Exp $
+// $Id: imageapi.module,v 1.9 2008/03/30 23:25:10 dopry Exp $
 
 /**
  * @file
@@ -296,12 +296,25 @@ function imageapi_image_open($file, $toolkit = FALSE) {
   return FALSE;
 }
 
-function imageapi_image_close($image, $destination) {
+/**
+ * Write an image to a file. 
+ *
+ * @param $image 
+ *   imageAPI image object.
+ *
+ * @param $destination
+ *   destination path where image should be saved. If it is empty the original image will
+ *   be over written.
+ */
+function imageapi_image_close($image, $destination = '') {
+  if (empty($destination)) {
+    $destination = $image->source;
+  }
   if ($return = call_user_func($image->toolkit .'_image_close', $image, $destination)) {
     if (@chmod($destination, 0775)) {
       return $return;
     } 
-    watchdog('imageapi', t('Could not set permissons on destination file: %file', array('%file' => $image->source)));
+    watchdog('imageapi', t('Could not set permissons on destination file: %file', array('%file' => $destination)));
   }
   return FALSE;
 }
