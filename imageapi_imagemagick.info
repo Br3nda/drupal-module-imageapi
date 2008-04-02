@@ -1,0 +1,5 @@
+; $Id: imageapi_imagemagick.info,v 1.1 2008/04/02 06:48:17 dopry Exp $
+name = ImageAPI ImageMagick
+description = Command Line ImageMagick support.
+package = ImageCache
+dependencies = imageapi
