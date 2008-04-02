@@ -126,7 +126,9 @@ function imageapi_imagemagick_image_rotate(&$image, $degrees, $bgcolor) {
 } 
 
 function imageapi_imagemagick_image_desaturate(&$image) {
-  return FALSE;
+  $args = array('desaturate' => '-colorspace GRAY');
+  $args = _imageapi_imagemagick_alter_invoke('desaturate', $source, $args);
+  return _imageapi_imagemagick_convert($image->res, $image->res, $args);
 }
 
 /**
