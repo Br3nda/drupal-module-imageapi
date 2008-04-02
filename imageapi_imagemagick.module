@@ -83,7 +83,8 @@ function imageapi_imagemagick_quality_element_validate($element) {
 }
 
 function imageapi_imagemagick_image_open($image) {
-  $image->res = tempnam(file_directory_temp(), 'imageapi_imagemagick_');
+  $ext = array_pop(explode('.', $image->source));
+  $image->res = tempnam(file_directory_temp(), 'imageapi_imagemagick_') .".$ext";
   if (!file_copy($image->source, $image->res)) {
     return FALSE;
   }
@@ -155,7 +156,7 @@ function _imageapi_imagemagick_alter_invoke($op, $filepath, $args) {
  * Calls the convert executable with the specified filter.
  */
 function _imageapi_imagemagick_convert($source, $dest, $args) {
-  $args[] = array('quality' => '-quality '. variable_get('imageapi_imagemagick_quality', 75));
+  $args['quality'] = '-quality '. variable_get('imageapi_imagemagick_quality', 75);
   $command = implode(' ', array(
     preg_replace("/[^A-Za-z0-9\!\.\-\+\_\/\040]/", '', implode(' ', $args)),
     escapeshellarg($source),
