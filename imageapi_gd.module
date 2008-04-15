@@ -65,7 +65,7 @@ function imageapi_gd_image_resize(&$image, $width, $height) {
     imagealphablending($res, TRUE);
     imagesavealpha($res, TRUE);
   }
-  elseif ($info['extension'] == 'gif') {
+  elseif ($image->info['extension'] == 'gif') {
     $transparency = imagecolortransparent($image->res);
     // If we have a specific transparent color.
     if ($transparency >= 0) {
