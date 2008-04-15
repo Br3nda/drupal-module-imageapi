@@ -1,5 +1,5 @@
 <?php
-// $Id: imageapi.module,v 1.9 2008/03/30 23:25:10 dopry Exp $
+// $Id: imageapi.module,v 1.10 2008/04/15 14:28:14 dopry Exp $
 
 /**
  * @file
@@ -73,7 +73,7 @@ function imageapi_settings() {
       // The variable needs to be manually set. Otherwise, if a user has two 
       // toolkits and disables the selected one they won't be able to select the 
       // remaing toolkit.
-      variable_set('imageapi_toolkit', $toolkit);
+      variable_set('imageapi_image_toolkit', $toolkit);
       $form['imageapi_image_toolkit']['#value'] = t('The %toolkit module is the only enabled image toolkit. Drupal will use it for resizing, cropping and other image manipulations.', array('%toolkit' => $toolkits[$toolkit]['name']));
       return $form;
             
