@@ -29,7 +29,6 @@ function imageapi_imagemagick_settings_form() {
     '#field_suffix' => '%',
     '#validate' => array('imageapi_imagemagick_quality_element_validate' => array()),
   );
-  $form['#after_build'] = array('_imageapi_imagemagick_build_version');
   
   $form['imageapi_imagemagick_binary'] = array(
     '#type' => 'fieldset',
@@ -37,14 +36,19 @@ function imageapi_imagemagick_settings_form() {
     '#collapsible' => FALSE,
     '#description' => t('ImageMagick is a standalone program used to manipulate images. To use it, it must be installed on your server and you need to know where it is located. If you are unsure of the exact path consult your ISP or server administrator.'),
   );
+
+  $form['imageapi_imagemagick_binary']['version'] = array('#weight' => -1);
+  $form['imageapi_imagemagick_binary']['#after_build'] = array('_imageapi_imagemagick_build_version');
+
   $form['imageapi_imagemagick_binary']['imageapi_imagemagick_convert'] = array(
     '#type' => 'textfield',
     '#title' => t('Path to the "convert" binary'),
     '#default_value' => variable_get('imageapi_imagemagick_convert', '/usr/bin/convert'),
     '#required' => TRUE,
     '#description' => t('Specify the complete path to the ImageMagic <kbd>convert</kbd> binary. For example: <kbd>/usr/bin/convert</kbd> or <kbd>C:\Program Files\ImageMagick-6.3.4-Q16\convert.exe</kbd>'),
-    '#validate' => array('_imageapi_imagemagick_checkpath' => array()),
+    '#validate' => array('_imageapi_imagemagick_validate_path' => array()),
   );
+
   $form['imageapi_imagemagick_binary']['imageapi_imagemagick_debugging'] = array(
     '#type' => 'checkbox',
     '#title' => t('Display debugging information'),
@@ -54,26 +58,35 @@ function imageapi_imagemagick_settings_form() {
   return system_settings_form($form);
 }
 
-function _imageapi_imagemagick_build_version($form, $form_element) {
-  _imageapi_imagemagick_convert_exec('-version', $output, $errors);
-  $form['imageapi_imagemagick_binary']['version'] = array(
-    '#type' => 'item',
-    '#value' => '<pre>'. check_plain(trim($output)) .'</pre>',
-  );
-  return $form;
+function _imageapi_imagemagick_build_version($form_element, $form_values) {
+  // make sure path is set and valid before running after build.
+  if ($path_errors = _imageapi_imagemagick_check_path($form_values['imageapi_imagemagick_convert'])) {
+    // check here is primarily for pre-existing bad settings...
+    // the #validate should prevent users from adding bad paths.
+    $form_element['imageapi_imagemagick_binary'] = array(
+      '#value' => '<p class="error">'. implode('<br />', $path_errors) .'</p>',
+    );
+  }
+  else {
+    _imageapi_imagemagick_convert_exec('-version', $output, $errors);
+    $form_element['imageapi_imagemagick_binary']['version'] = array(
+      '#title' => t('Version information'),
+      '#value' => '<pre>'. check_plain(trim($output)) .'</pre>',
+      '#description' => t('The ImageMagick <kbd>convert</kbd> binary was located and return this version information.'),
+    );
+  }
+  $form_element['imageapi_imagemagick_binary']['version']['#type'] = 'item';
+  $form_element['imageapi_imagemagick_binary']['version']['#weight'] = -1;
+  return $form_element;
 }
 
 function _imageapi_imagemagick_validate_path($element) {
-  if (_imageapi_imagemagick_check_path($element['#value'])) {
-    return TRUE;
+  if ($errors = _imageapi_imagemagick_check_path($element['#value'])) {
+    form_set_error($element['#parents'][0], implode('<br />', $errors));
+    //form_set_value($element['#parents'][0], variable_get('imageapi_imagemagick_convert', '/usr/bin/convert'));
+    return FALSE;
   }
-  if ($open_basedir = ini_get('open_basedir')) {
-    form_set_error($element['#parents'][0], t("No file %file could be found. PHP's <a href='!open-basedir'>open_basedir</a> security resriction is set to %open-basedir, which may be interfearing with the attempts to locate ImageMagick.", array('%file' => $path, '%open-basedir' => $open_basedir, '!info-link' => url('http://php.net/features.safe-mode#ini.open-basedir') )));
-  }
-  else {
-    form_set_error($element['#parents'][0], t('The specified ImageMagick path %file does not exist.', array('%file' => $path)));
-  }
-  return FALSE;
+  return TRUE;
 }
 
 function imageapi_imagemagick_quality_element_validate($element) {  
@@ -102,6 +115,8 @@ function imageapi_imagemagick_image_crop(&$image, $x, $y, $width, $height) {
   if (!_imageapi_imagemagick_convert($source, $dest, $args)) {
     return FALSE;
   }
+  $image->info['width'] = $width;
+  $image->info['height'] = $height;
   return TRUE;
 }
 
@@ -112,7 +127,7 @@ function imageapi_imagemagick_image_resize(&$image, $width, $height) {
     return FALSE;
   }
   $image->info['width'] = $width;
-  $image->info['height'] = $width;
+  $image->info['height'] = $height;
   return TRUE;
 }
 
@@ -172,13 +187,24 @@ function _imageapi_imagemagick_convert($source, $dest, $args) {
 }
 
 function _imageapi_imagemagick_check_path($path) {
-  return is_file($path) && is_executable($path);
+  $errors = array();
+  if (!is_file($path)) {
+    $errors[] = t('The specified ImageMagick path %file does not exist.', array('%file' => $path));
+  }
+  if (!$errors && !is_executable($path)) {
+    $errors[] = t('The specified ImageMagick path %file is not executable.', array('%file' => $path));
+  }
+  if ($errors && $open_basedir = ini_get('open_basedir')) {
+    $errors[] = t("PHP's <a href='!open-basedir'>open_basedir</a> security resriction is set to %open-basedir, which may be interfering with attempts to locate ImageMagick.", array('%file' => $path, '%open-basedir' => $open_basedir, '!info-link' => url('http://php.net/features.safe-mode#ini.open-basedir')));
+  }
+  return $errors;
 }
 
 function _imageapi_imagemagick_convert_exec($command_args, &$output, &$errors) {
   $convert_path = variable_get('imageapi_imagemagick_convert', '/usr/bin/convert');
-  if (!_imageapi_imagemagick_check_path($convert_path)) {
-    drupal_set_message(t("ImageMagick could not be found. The admin will need to set the path on the <a href='@image-toolkit-settings'>image toolkit page</a>.", array('@image-toolkit-settings' => url('admin/settings/image-toolkit'))), 'error');
+  if ($errors = _imageapi_imagemagick_check_path($convert_path)) {
+    array_unshift($errors,  t("ImageMagick could not be found. The admin will need to set the path on the <a href='@image-toolkit-settings'>image toolkit page</a>.", array('@image-toolkit-settings' => url('admin/settings/image-toolkit'))));
+    drupal_set_message(implode('<br />', $errors), 'error');
     return FALSE;
   }
 
