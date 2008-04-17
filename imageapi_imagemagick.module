@@ -101,45 +101,40 @@ function imageapi_imagemagick_image_open($image) {
   if (!file_copy($image->source, $image->res)) {
     return FALSE;
   }
+  $image->ops = array();
   register_shutdown_function('file_delete', $image->res);
   return $image;
 }
 
 function imageapi_imagemagick_image_close($image, $dst) {
+  if (!_imageapi_imagemagick_convert($image->res, $image->res, $image->ops)) {
+    return FALSE;
+  }
   return file_move($image->res, $dst);
 }
 
 function imageapi_imagemagick_image_crop(&$image, $x, $y, $width, $height) {
-  $args = array('crop' => '-crop '. (int) $width .'x'. (int) $height .'+'. (int) $x .'+'. (int) $y .'!');
-  if (!_imageapi_imagemagick_convert($source, $dest, $args)) {
-    return FALSE;
-  }
+  $image->ops[]  = '-crop '. (int) $width .'x'. (int) $height .'+'. (int) $x .'+'. (int) $y .'!';
   $image->info['width'] = $width;
   $image->info['height'] = $height;
   return TRUE;
 }
 
 function imageapi_imagemagick_image_resize(&$image, $width, $height) {
-  $args = array('resize' => '-resize '. (int) $width .'x'. (int) $height .'!');
-  if (!_imageapi_imagemagick_convert($image->res, $image->res, $args)) {
-    return FALSE;
-  }
+  $image->ops[] = '-resize '. (int) $width .'x'. (int) $height .'!';
   $image->info['width'] = $width;
   $image->info['height'] = $height;
   return TRUE;
 }
 
 function imageapi_imagemagick_image_rotate(&$image, $degrees, $bgcolor) {
-  $args = array(
-    'rotate' => '-rotate '. (float) $degrees,
-    'background' => '-background #'. str_pad(dechex($bg_color), 6, 0),
-  );
-  return _imageapi_imagemagick_convert($image->res, $image->res, $args);
+  $image->ops[] = '-rotate '. (float) $degrees .' -background #'. str_pad(dechex($bg_color), 6, 0);
+  return TRUE;
 } 
 
 function imageapi_imagemagick_image_desaturate(&$image) {
-  $args = array('desaturate' => '-colorspace GRAY');
-  return _imageapi_imagemagick_convert($image->res, $image->res, $args);
+  $image->ops[] = '-colorspace GRAY';
+  return TRUE;
 }
 
 /**
