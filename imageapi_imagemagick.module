@@ -111,7 +111,6 @@ function imageapi_imagemagick_image_close($image, $dst) {
 
 function imageapi_imagemagick_image_crop(&$image, $x, $y, $width, $height) {
   $args = array('crop' => '-crop '. (int) $width .'x'. (int) $height .'+'. (int) $x .'+'. (int) $y .'!');
-  $args = _imageapi_imagemagick_alter_invoke('crop', $source, $args);
   if (!_imageapi_imagemagick_convert($source, $dest, $args)) {
     return FALSE;
   }
@@ -122,7 +121,6 @@ function imageapi_imagemagick_image_crop(&$image, $x, $y, $width, $height) {
 
 function imageapi_imagemagick_image_resize(&$image, $width, $height) {
   $args = array('resize' => '-resize '. (int) $width .'x'. (int) $height .'!');
-  $args = _imageapi_imagemagick_alter_invoke('resize', $source, $args);
   if (!_imageapi_imagemagick_convert($image->res, $image->res, $args)) {
     return FALSE;
   }
@@ -136,37 +134,12 @@ function imageapi_imagemagick_image_rotate(&$image, $degrees, $bgcolor) {
     'rotate' => '-rotate '. (float) $degrees,
     'background' => '-background #'. str_pad(dechex($bg_color), 6, 0),
   );
-  $args = _imageapi_imagemagick_alter_invoke('rotate', $source, $args);
   return _imageapi_imagemagick_convert($image->res, $image->res, $args);
 } 
 
 function imageapi_imagemagick_image_desaturate(&$image) {
   $args = array('desaturate' => '-colorspace GRAY');
-  $args = _imageapi_imagemagick_alter_invoke('desaturate', $source, $args);
   return _imageapi_imagemagick_convert($image->res, $image->res, $args);
-}
-
-/**
- * Invoke hook_imagemagick_alter().
- *
- * Implementors of hook_imagemagick_alter() should accept three parameters: $op,
- * $filepath and &$args (passed by reference), which are described below.
- *
- * @param $op
- *   String with the operation: 'resize', 'crop', 'rotate'.
- * @param $filepath
- *   String containing the path to the image that is being processed.
- * @param $args
- *   Array containing ImageMagick options.
- * @return
- *   Array of modified arguments.
- */
-function _imageapi_imagemagick_alter_invoke($op, $filepath, $args) {
-  foreach (module_implements('imagemagick_alter') as $module) {
-    $function = $module .'_imagemagick_alter'; 
-    $function($op, $filepath, $args);
-  }
-  return $args;
 }
 
 /**
@@ -203,8 +176,10 @@ function _imageapi_imagemagick_check_path($path) {
 function _imageapi_imagemagick_convert_exec($command_args, &$output, &$errors) {
   $convert_path = variable_get('imageapi_imagemagick_convert', '/usr/bin/convert');
   if ($errors = _imageapi_imagemagick_check_path($convert_path)) {
+    // When updating an invalid path this function throws an error.
+    array_unshift($errors,  t("If the referrer is the settings page this error can most likely be ignored."));
     array_unshift($errors,  t("ImageMagick could not be found. The admin will need to set the path on the <a href='@image-toolkit-settings'>image toolkit page</a>.", array('@image-toolkit-settings' => url('admin/settings/image-toolkit'))));
-    drupal_set_message(implode('<br />', $errors), 'error');
+    watchdog('imageapi imagemagick', implode('<br />', $errors), WATCHDOG_ERRROR);
     return FALSE;
   }
 
