@@ -128,7 +128,8 @@ function imageapi_imagemagick_image_resize(&$image, $width, $height) {
 }
 
 function imageapi_imagemagick_image_rotate(&$image, $degrees, $bgcolor) {
-  $image->ops[] = '-rotate '. (float) $degrees .' -background #'. str_pad(dechex($bg_color), 6, 0);
+  $bgcolor = str_replace('0x','#', $bgcolor); 
+  $image->ops[] = '-rotate '. (float) $degrees .' -background '. escapeshellarg($bgcolor) ;
   return TRUE;
 } 
 
@@ -141,12 +142,11 @@ function imageapi_imagemagick_image_desaturate(&$image) {
  * Calls the convert executable with the specified filter.
  */
 function _imageapi_imagemagick_convert($source, $dest, $args) {
-  $args['quality'] = '-quality '. variable_get('imageapi_imagemagick_quality', 75);
-  $command = implode(' ', array(
-    preg_replace("/[^A-Za-z0-9\!\.\-\+\_\/\040]/", '', implode(' ', $args)),
-    escapeshellarg($source),
-    escapeshellarg($dest),
-  ));
+  $args['quality'] = '-quality '. escapeshellarg(variable_get('imageapi_imagemagick_quality', 75));
+  $args[] = escapeshellarg($source);
+  $args[] = escapeshellarg($dest);
+
+  $command = implode(' ', $args);
 
   if (0 != _imageapi_imagemagick_convert_exec($command, $output, $errors)) {
     return FALSE;

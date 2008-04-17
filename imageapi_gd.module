@@ -103,45 +103,7 @@ function imageapi_gd_image_rotate(&$image, $degrees, $bgcolor) {
 } 
 
 function imageapi_gd_image_desaturate(&$image) {
-  if (function_exists('imagefilter')) { // PHP 5
-    if (!imagefilter($image->res, IMG_FILTER_GRAYSCALE)) {
-       return FALSE;
-    }
-  } 
-  else {                              // PHP < 5
-    $res = imageCreateTrueColor($image->info['width'], $image->info['height']);
-    for ($y = 0; $y < $image->info['height']; ++$y) {
-      for ($x = 0; $x < $image->info['width']; ++$x) {
-        $rgb = imagecolorat($image->res, $x, $y);
-        if (imageistruecolor($image->res)) {
-          $red   = ($rgb >> 16) & 0xFF;
-          $green = ($rgb >> 8)  & 0xFF;
-          $blue  = $rgb & 0xFF;
-        } 
-        else {
-          $rgb = imagecolorsforindex($image->res, $rgb);
-          $red   = $rgb['red'];
-          $green = $rgb['green'];
-          $blue  = $rgb['blue'];
-        }
-         
-        $gray = round(.299*$red + .587*$green + .114*$blue);
-         
-        // shift gray level to the left
-        $grayR = $gray << 16;   // R: red
-        $grayG = $gray << 8;    // G: green
-        $grayB = $gray;         // B: blue
-        $grayColor = $grayR | $grayG | $grayB;
-        
-        // set the pixel color
-        imagesetpixel($res, $x, $y, $grayColor);
-        imagecolorallocate($res, $gray, $gray, $gray);
-      }
-    }
-    imageDestroy($image->res);
-    $image->res = $res;
-  }
-  return TRUE;
+  return imagefilter($image->res, IMG_FILTER_GRAYSCALE);
 }
 
 /**
@@ -153,6 +115,7 @@ function _gd_open($file, $extension) {
   if (!function_exists($open_func)) {
     return FALSE;
   }
+  
   return $open_func($file);
 }
 
@@ -171,4 +134,12 @@ function _gd_close($res, $destination, $extension) {
   else {
     return $close_func($res, $destination);
   }
+}
+
+if (!function_exists('imagerotate')) {
+  include_once('imagerotate.inc');
+}
+
+if (!function_exists('imagefilter')) {
+  include_once('imagefilter.inc');
 }

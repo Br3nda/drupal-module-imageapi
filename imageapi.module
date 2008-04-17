@@ -1,5 +1,5 @@
 <?php
-// $Id: imageapi.module,v 1.10 2008/04/15 14:28:14 dopry Exp $
+// $Id: imageapi.module,v 1.11 2008/04/17 11:04:13 dopry Exp $
 
 /**
  * @file
@@ -318,3 +318,48 @@ function imageapi_image_close($image, $destination = '') {
   }
   return FALSE;
 }
+
+
+
+/**
+ * Convert a hex string to it's rgba integer components
+ * $hex can be in the formats: '#ABC','ABC','#ABCD','ABCD','#AABBCC','AABBCC','#AABBCCDD','AABBCCDD'
+ *
+ */
+function imageapi_hex2rgba($hex) {
+  $hex = ltrim($hex,'#');
+  if (preg_match('/^[0-9a-f]{3}$/i',$hex)) {
+    // 'FA3' is the same as 'FFAA33' so r=FF, g=AA, b=33
+    $r = str_repeat($hex{0},2);
+    $g = str_repeat($hex{1},2);
+    $b = str_repeat($hex{2},2);
+    $a = '0';
+  }
+  elseif (preg_match('/^[0-9a-f]{6}$/i',$hex)) {
+    // #FFAA33 or r=FF, g=AA, b=33
+    list($r,$g,$b) = str_split($hex,2);
+    $a = '0';
+  }
+  elseif (preg_match('/^[0-9a-f]{8}$/i',$hex)) {
+    // #FFAA33 or r=FF, g=AA, b=33
+    list($r,$g,$b,$a) = str_split($hex,2);
+  }
+  elseif (preg_match('/^[0-9a-f]{4}$/i',$hex)) {
+    // 'FA37' is the same as 'FFAA3377' so r=FF, g=AA, b=33, a=77
+    $r = str_repeat($hex{0},2);
+    $g = str_repeat($hex{1},2);
+    $b = str_repeat($hex{2},2);
+    $a = str_repeat($hex{3},2);
+  }
+  else {
+    //error: invalide hex string, TODO: set form error..
+    return FALSE;
+  }
+
+  $r = hexdec($r);
+  $g = hexdec($g);
+  $b = hexdec($b);
+  $a = hexdec($a);
+  return array($r,$g,$b,$a);
+}
+
