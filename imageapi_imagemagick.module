@@ -171,9 +171,6 @@ function _imageapi_imagemagick_check_path($path) {
 function _imageapi_imagemagick_convert_exec($command_args, &$output, &$errors) {
   $convert_path = variable_get('imageapi_imagemagick_convert', '/usr/bin/convert');
   if ($errors = _imageapi_imagemagick_check_path($convert_path)) {
-    // When updating an invalid path this function throws an error.
-    array_unshift($errors,  t("If the referrer is the settings page this error can most likely be ignored."));
-    array_unshift($errors,  t("ImageMagick could not be found. The admin will need to set the path on the <a href='@image-toolkit-settings'>image toolkit page</a>.", array('@image-toolkit-settings' => url('admin/settings/image-toolkit'))));
     watchdog('imageapi imagemagick', implode('<br />', $errors), WATCHDOG_ERRROR);
     return FALSE;
   }
