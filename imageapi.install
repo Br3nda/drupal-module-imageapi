@@ -1,4 +1,34 @@
 <?php
 
+
+/**
+ *  Implementation of hook_requirements().
+ */
+function imageapi_requirements($phase) {
+  $requirements = array();
+  // Ensure translations don't break at install time
+  $t = get_t();
+
+  if (version_compare(phpversion(), IMAGEAPI_MINIMUM_PHP) < 0) {
+    $requirements['imageapi_php'] = array(
+      'title' => $t('ImageAPI PHP'),
+      'description' => $t('ImageAPI requires at least PHP %version.', array('%version' => IMAGEAPI_MINIMUM_PHP)),
+      'severity' => REQUIREMENT_ERROR
+    );
+  }
+  
+  return $requirements;
+}
+
+
 function imageapi_install() {
+}
+
+function imageapi_uninstall() {
+}
+
+function imageapi_enable() {
+}
+
+function imageapi_disable() {
 }

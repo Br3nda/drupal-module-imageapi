@@ -3,6 +3,8 @@
 // this hackish version should help, but produces low quality 
 // output and bgcolor is broken.
 
+define('IMAGEAPI_IMAGEROTATE_PHP', 1);
+
 function imageRotate(&$im, $angle, $bgcolor) {
   if ($angle === 0) { 
     return $im;

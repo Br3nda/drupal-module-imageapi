@@ -1,5 +1,5 @@
 <?php
-// $Id: imageapi.module,v 1.11 2008/04/17 11:04:13 dopry Exp $
+// $Id: imageapi.module,v 1.12 2008/04/19 14:34:03 dopry Exp $
 
 /**
  * @file
@@ -92,25 +92,6 @@ function imageapi_settings() {
   }
 
   return system_settings_form($form);
-}
-
-/**
- *  Implementation of hook_requirements().
- */
-function imageapi_requirements($phase) {
-  $requirements = array();
-  // Ensure translations don't break at install time
-  $t = get_t();
-
-  if (version_compare(phpversion(), IMAGEAPI_MINIMUM_PHP) < 0) {
-    $requirements['imageapi_php'] = array(
-      'title' => $t('ImageAPI PHP'),
-      'description' => $t('ImageAPI requires at least PHP %version.', array('%version' => IMAGEAPI_MINIMUM_PHP)),
-      'severity' => REQUIREMENT_ERROR
-    );
-  }
-  
-  return $requirements;
 }
 
 /**

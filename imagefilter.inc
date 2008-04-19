@@ -18,6 +18,7 @@ define('IMG_FILTER_SELECTIVE_BLUR',8);
 define('IMG_FILTER_MEAN_REMOVAL',9);
 define('IMG_FILTER_SMOOTH',10);
 
+define('IMAGEAPI_IMAGEFILTER_PHP', 1);
 /** 
  * walk each pixel in an image applying $callback to it.
  */
