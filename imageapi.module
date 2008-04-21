@@ -1,5 +1,5 @@
 <?php
-// $Id: imageapi.module,v 1.13 2008/04/21 12:07:42 dopry Exp $
+// $Id: imageapi.module,v 1.14 2008/04/21 12:54:38 dopry Exp $
 
 /**
  * @file
@@ -106,7 +106,7 @@ function imageapi_get_available_toolkits() {
  
   if (!isset($toolkits)) {
     $toolkits = array();
-    foreach (module_implements('imageapi_toolkit', TRUE) as $module) {
+    foreach (module_implements('imageapi_toolkit', true) as $module) {
       $info = _module_parse_info_file(drupal_get_path('module', $module) .'/'. $module .'.info');
       $toolkits[$module] = array('name' => $info['name'], 'description' => $info['description']);
     }
@@ -119,7 +119,7 @@ function imageapi_get_available_toolkits() {
  * Retrieve the name of the currently used toolkit.
  *
  * @return 
- *   String containing the name of the toolkit, or FALSE if none is available.
+ *   String containing the name of the toolkit, or false if none is available.
  */
 function imageapi_default_toolkit() {
   $toolkit = variable_get('imageapi_image_toolkit', 'imageapi_gd');
@@ -127,7 +127,7 @@ function imageapi_default_toolkit() {
   if (isset($toolkit) && module_exists($toolkit)) {
     return $toolkit;
   }
-  return FALSE;
+  return false;
 }
 
 /**
@@ -155,7 +155,7 @@ function imageapi_image_scale_and_crop(&$image, $width, $height) {
   if (imageapi_image_resize($image, $image->info['width'] * $scale, $image->info['height'] * $scale)) {
     return imageapi_image_crop($image, $x, $y, $width, $height);
   }
-  return FALSE;
+  return false;
 }
 
 /**
@@ -173,12 +173,12 @@ function imageapi_image_scale_and_crop(&$image, $width, $height) {
  * @param $upscale
  *   Allow upscaling.
  * @return
- *   TRUE or FALSE, based on success.
+ *   true or false, based on success.
  */
-function imageapi_image_scale(&$image, $width, $height, $upscale = FALSE) {
+function imageapi_image_scale(&$image, $width, $height, $upscale = false) {
   // Don't scale up.
   if (!$upscale && $width >= $image->info['width'] && $height >= $image->info['height']) {
-    return TRUE;
+    return true;
   }
 
   $aspect = $image->info['height'] / $image->info['width'];
@@ -207,7 +207,7 @@ function imageapi_image_scale(&$image, $width, $height, $upscale = FALSE) {
  * @param $toolkit
  *   An optional override of the default image toolkit.
  * @return
- *   TRUE or FALSE, based on success.
+ *   true or false, based on success.
  */
 function imageapi_image_resize(&$image, $width, $height) {
   return call_user_func($image->toolkit .'_image_resize', $image, $width, $height);
@@ -229,7 +229,7 @@ function imageapi_image_resize(&$image, $width, $height) {
  * @param $toolkit
  *   An optional override of the default image toolkit.
  * @return
- *   TRUE or FALSE, based on success.
+ *   true or false, based on success.
  */
 function imageapi_image_rotate(&$image, $degrees, $bgcolor = 0x000000) {
   return call_user_func($image->toolkit .'_image_rotate', $image, $degrees, $bgcolor);
@@ -260,7 +260,7 @@ function imageapi_image_desaturate(&$image) {
   return call_user_func($image->toolkit .'_image_desaturate', $image);
 }
 
-function imageapi_image_open($file, $toolkit = FALSE) {
+function imageapi_image_open($file, $toolkit = false) {
   if (!$toolkit) {
     $toolkit = imageapi_default_toolkit();
   }
@@ -274,7 +274,7 @@ function imageapi_image_open($file, $toolkit = FALSE) {
     }
   }
   watchdog('imageapi', t('ImageAPI failed to open %file with %toolkit', array('%file' => $file, '%toolkit' => $toolkit)), WATCHDOG_WARNING);
-  return FALSE;
+  return false;
 }
 
 /**
@@ -297,7 +297,7 @@ function imageapi_image_close($image, $destination = '') {
     } 
     watchdog('imageapi', t('Could not set permissons on destination file: %file', array('%file' => $destination)));
   }
-  return FALSE;
+  return false;
 }
 
 
@@ -334,13 +334,13 @@ function imageapi_hex2rgba($hex) {
   }
   else {
     //error: invalide hex string, TODO: set form error..
-    return FALSE;
+    return false;
   }
 
   $r = hexdec($r);
   $g = hexdec($g);
   $b = hexdec($b);
   $a = hexdec($a);
-  return array($r,$g,$b,$a);
+  return array($r, $g, $b, $a);
 }
 

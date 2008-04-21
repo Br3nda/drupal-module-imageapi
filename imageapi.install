@@ -1,5 +1,5 @@
 <?php
-
+// $Id: imageapi.install,v 1.3 2008/04/21 12:54:38 dopry Exp $
 
 /**
  *  Implementation of hook_requirements().

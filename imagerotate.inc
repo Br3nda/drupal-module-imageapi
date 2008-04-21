@@ -1,11 +1,17 @@
 <?php 
-// some distro's are missing imagerotate...
-// this hackish version should help, but produces low quality 
-// output and bgcolor is broken.
+// $Id: imagerotate.inc,v 1.3 2008/04/21 12:54:38 dopry Exp $
 
+/** 
+ * @file
+ * provides the imagerotate function for php-gd extensions compiled with the 
+ * upstream libgd instead of the libgd bundled with php.
+ */
+
+
+// Define as included.
 define('IMAGEAPI_IMAGEROTATE_PHP', 1);
 
-function imageRotate(&$im, $angle, $bgcolor) {
+function imagerotate(&$im, $angle, $bgcolor) {
   if ($angle === 0) { 
     return $im;
   }
@@ -13,9 +19,9 @@ function imageRotate(&$im, $angle, $bgcolor) {
   $width  = imagesx($im);
   $height = imagesy($im);
   // background color.
-  list($r,$b,$g,$a) = imageapi_hex2rgba($bgcolor);
+  list($r, $b, $g, $a) = imageapi_hex2rgba($bgcolor);
 
-  switch($angle) {
+  switch ($angle) {
     case 270:
     case 90:
       // flip dimensions.
@@ -40,13 +46,13 @@ function imageRotate(&$im, $angle, $bgcolor) {
       $sinangle = sin(deg2rad($angle+180));
 
       // caluculate new width and height.
-      $corners=array(array(0,0), array($width,0), array($width, $height), array(0,$height));
+      $corners=array(array(0, 0), array($width, 0), array($width, $height), array(0, $height));
       $max_x = $min_x = $max_y = $min_y = 0;
-      foreach($corners as $key=>$value) {
-        $value[0]-=$center_x;        //Translate coords to center for rotation
-        $value[1]-=$center_y;
-        $x = $value[0]*$cosangle+$value[1]*$sinangle;
-        $y = $value[1]*$cosangle-$value[0]*$sinangle;
+      foreach ($corners as $key => $value) {
+        $value[0] -= $center_x;        //Translate coords to center for rotation
+        $value[1] -= $center_y;
+        $x = $value[0] * $cosangle + $value[1] * $sinangle;
+        $y = $value[1] * $cosangle - $value[0] * $sinangle;
         $max_x = max($x, $max_x);
         $min_x = min($x, $min_x);
         $max_y = max($y, $max_y);
@@ -58,7 +64,7 @@ function imageRotate(&$im, $angle, $bgcolor) {
       $rot_center_y = floor($rot_height/2);
   }
 
-  $rotate = imagecreatetruecolor($rot_width,$rot_height);
+  $rotate = imagecreatetruecolor($rot_width, $rot_height);
   $bg = imagecolorallocatealpha($rotate, $r, $g, $b, $a);
   imagefilledrectangle($rotate, 0, 0, $rot_width, $rot_height, $bg);
   imagealphablending($rotate, false);
@@ -67,27 +73,27 @@ function imageRotate(&$im, $angle, $bgcolor) {
   switch ($angle) {
     case 270:
       $rot_width--;
-      for ($y = 0; $y < $height; $y++)
-        for ($x = 0; $x < $width; $x++)
-           imagesetpixel($rotate, $rot_width - $y, $x, imagecolorat($im, $x, $y));
+      for ($y = 0; $y < $height; ++$y)
+        for ($x = 0; $x < $width; ++$x)
+          imagesetpixel($rotate, $rot_width - $y, $x, imagecolorat($im, $x, $y));
       break;
     case 90:
       $rot_height--;
-         for ($y = 0; $y < $height; $y++)
-            for ($x = 0; $x < $width; $x++)
-               imagesetpixel($rotate, $y, $rot_height - $x, imagecolorat($im, $x, $y));
+      for ($y = 0; $y < $height; ++$y)
+        for ($x = 0; $x < $width; ++$x)
+          imagesetpixel($rotate, $y, $rot_height - $x, imagecolorat($im, $x, $y));
       break;
     case 180:
       $rot_width--;
       $rot_height--;
-      for ($y = 0; $y < $height; $y++)
-        for ($x = 0; $x < $width; $x++)
+      for ($y = 0; $y < $height; ++$y)
+        for ($x = 0; $x < $width; ++$x)
           imagesetpixel($rotate, $rot_width - $x, $rot_height - $y, imagecolorat($im, $x, $y));
       break;
 
     default:
-      for ($y = 0; $y < $rot_height; $y++) {
-        for ($x = 0; $x < $rot_width; $x++) {
+      for ($y = 0; $y < $rot_height; ++$y) {
+        for ($x = 0; $x < $rot_width; ++$x) {
           $mod_y = $rot_center_y-$y;
           $mod_x = $rot_center_x-$x;
           $old_x = $mod_x * $cosangle + $mod_y * $sinangle + $center_x;

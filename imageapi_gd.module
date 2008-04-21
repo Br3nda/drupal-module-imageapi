@@ -1,5 +1,4 @@
-<?php
-// $id: $
+<?php // $Id: imageapi_gd.module,v 1.6 2008/04/21 12:54:38 dopry Exp $
 
 /**
  * @file
@@ -35,7 +34,7 @@ function imageapi_gd_image_open($image) {
   if ($image->res =  _gd_open($image->source, $image->info['extension'])) {
     return $image;
   }
-  return FALSE;
+  return false;
 }
 
 function imageapi_gd_image_close($image, $destination) {
@@ -43,27 +42,27 @@ function imageapi_gd_image_close($image, $destination) {
 }
 
 function imageapi_gd_image_crop(&$image, $x, $y, $width, $height) {
-  $res = imageCreateTrueColor($width, $height);
-  if (!imageCopy($res, $image->res, 0, 0, $x, $y, $width, $height)) {
-    return FALSE;
+  $res = imagecreatetruecolor($width, $height);
+  if (!imagecopy($res, $image->res, 0, 0, $x, $y, $width, $height)) {
+    return false;
   }
   // destroy the original image and return the modified image.
-  imageDestroy($image->res);
+  imagedestroy($image->res);
   $image->res = $res;
   $image->info['width'] = $width;
   $image->info['height'] = $height;
-  return TRUE;
+  return true;
   
 }
 
 function imageapi_gd_image_resize(&$image, $width, $height) {
-  $res = imageCreateTrueColor($width, $height);
+  $res = imagecreatetruecolor($width, $height);
   if ($image->info['extension'] == 'png') {
     $transparency = imagecolorallocatealpha($res, 0, 0, 0, 127);
-    imagealphablending($res, FALSE);
+    imagealphablending($res, false);
     imagefilledrectangle($res, 0, 0, $width, $height, $transparency);
-    imagealphablending($res, TRUE);
-    imagesavealpha($res, TRUE);
+    imagealphablending($res, true);
+    imagesavealpha($res, true);
   }
   elseif ($image->info['extension'] == 'gif') {
     $transparency = imagecolortransparent($image->res);
@@ -84,22 +83,22 @@ function imageapi_gd_image_resize(&$image, $width, $height) {
       imagecolortransparent($res, $transparency);
     }
   }
-  if (!imageCopyResampled($res, $image->res, 0, 0, 0, 0, $width, $height, $image->info['width'], $image->info['height'])) {
-    return FALSE;
+  if (!imagecopyresampled($res, $image->res, 0, 0, 0, 0, $width, $height, $image->info['width'], $image->info['height'])) {
+    return false;
   }
-  imageDestroy($image->res);
+  imagedestroy($image->res);
   // update image object
   $image->res = $res;
   $image->info['width'] = $width;
   $image->info['height'] = $height;
-  return TRUE;
+  return true;
 }
 
 function imageapi_gd_image_rotate(&$image, $degrees, $bgcolor) {
-  $res = imageRotate($image->res, $degrees, $bgcolor);
-  imageDestroy($image->res);
+  $res = imagerotate($image->res, $degrees, $bgcolor);
+  imagedestroy($image->res);
   $image->res = $res;
-  return TRUE;
+  return true;
 } 
 
 function imageapi_gd_image_desaturate(&$image) {
@@ -113,7 +112,7 @@ function _gd_open($file, $extension) {
   $extension = str_replace('jpg', 'jpeg', $extension);
   $open_func = 'imageCreateFrom'. $extension;
   if (!function_exists($open_func)) {
-    return FALSE;
+    return false;
   }
   
   return $open_func($file);
@@ -126,7 +125,7 @@ function _gd_close($res, $destination, $extension) {
   $extension = str_replace('jpg', 'jpeg', $extension);
   $close_func = 'image'. $extension;
   if (!function_exists($close_func)) {
-    return FALSE;
+    return false;
   }
   if ($extension == 'jpeg') {
     return $close_func($res, $destination, variable_get('image_jpeg_quality', 75));

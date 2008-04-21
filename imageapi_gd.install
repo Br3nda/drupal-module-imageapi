@@ -1,5 +1,5 @@
 <?php
-// $Id: imageapi_gd.install,v 1.2 2008/04/19 14:34:03 dopry Exp $
+// $Id: imageapi_gd.install,v 1.3 2008/04/21 12:54:38 dopry Exp $
 
 function imageapi_gd_requirements($phase) {
   $requirements = array();
@@ -41,7 +41,7 @@ function imageapi_gd_requirements($phase) {
 
   // check non required stuff aka not installation blockers.
   if ($phase == 'runtime') {
-   if (IMAGEAPI_IMAGEROTATE_PHP == 1) {
+    if (IMAGEAPI_IMAGEROTATE_PHP == 1) {
       $requirements['imageapi_gd_imagerotate'] = array(
         'title' => $t('GD Image Rotation'),
         'value' => $t('Low Quality / Poor Performance'),
