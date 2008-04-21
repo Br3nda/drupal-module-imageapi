@@ -1,5 +1,5 @@
 <?php
-// $Id: imageapi.module,v 1.12 2008/04/19 14:34:03 dopry Exp $
+// $Id: imageapi.module,v 1.13 2008/04/21 12:07:42 dopry Exp $
 
 /**
  * @file
@@ -265,11 +265,11 @@ function imageapi_image_open($file, $toolkit = FALSE) {
     $toolkit = imageapi_default_toolkit();
   }
   if ($toolkit) {
-    $image = new StdClass();
+    $image = new stdClass();
     $image->source = $file;
     $image->info = image_get_info($file);
     $image->toolkit = $toolkit;
-    if ($image = call_user_func($image->toolkit.'_image_open', $image)) {
+    if ($image = call_user_func($image->toolkit .'_image_open', $image)) {
       return $image;
     }
   }
@@ -308,29 +308,29 @@ function imageapi_image_close($image, $destination = '') {
  *
  */
 function imageapi_hex2rgba($hex) {
-  $hex = ltrim($hex,'#');
-  if (preg_match('/^[0-9a-f]{3}$/i',$hex)) {
+  $hex = ltrim($hex, '#');
+  if (preg_match('/^[0-9a-f]{3}$/i', $hex)) {
     // 'FA3' is the same as 'FFAA33' so r=FF, g=AA, b=33
-    $r = str_repeat($hex{0},2);
-    $g = str_repeat($hex{1},2);
-    $b = str_repeat($hex{2},2);
+    $r = str_repeat($hex{0}, 2);
+    $g = str_repeat($hex{1}, 2);
+    $b = str_repeat($hex{2}, 2);
     $a = '0';
   }
-  elseif (preg_match('/^[0-9a-f]{6}$/i',$hex)) {
+  elseif (preg_match('/^[0-9a-f]{6}$/i', $hex)) {
     // #FFAA33 or r=FF, g=AA, b=33
-    list($r,$g,$b) = str_split($hex,2);
+    list($r, $g, $b) = str_split($hex, 2);
     $a = '0';
   }
-  elseif (preg_match('/^[0-9a-f]{8}$/i',$hex)) {
+  elseif (preg_match('/^[0-9a-f]{8}$/i', $hex)) {
     // #FFAA33 or r=FF, g=AA, b=33
-    list($r,$g,$b,$a) = str_split($hex,2);
+    list($r, $g, $b, $a) = str_split($hex, 2);
   }
-  elseif (preg_match('/^[0-9a-f]{4}$/i',$hex)) {
+  elseif (preg_match('/^[0-9a-f]{4}$/i', $hex)) {
     // 'FA37' is the same as 'FFAA3377' so r=FF, g=AA, b=33, a=77
-    $r = str_repeat($hex{0},2);
-    $g = str_repeat($hex{1},2);
-    $b = str_repeat($hex{2},2);
-    $a = str_repeat($hex{3},2);
+    $r = str_repeat($hex{0}, 2);
+    $g = str_repeat($hex{1}, 2);
+    $b = str_repeat($hex{2}, 2);
+    $a = str_repeat($hex{3}, 2);
   }
   else {
     //error: invalide hex string, TODO: set form error..
