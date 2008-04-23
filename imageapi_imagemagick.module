@@ -1,4 +1,4 @@
-<?php  // $Id: imageapi_imagemagick.module,v 1.9 2008/04/21 12:54:38 dopry Exp $
+<?php  // $Id: imageapi_imagemagick.module,v 1.10 2008/04/23 01:36:08 dopry Exp $
 
 /**
  * @file
@@ -179,7 +179,7 @@ function _imageapi_imagemagick_convert_exec($command_args, &$output, &$errors) {
     // http://us3.php.net/manual/en/function.exec.php#56599
     // Use /D to run the command from PHP's current working directory so the
     // file paths don't have to be absolute.
-    $convert_path = 'start "window title" /D'. getcwd() .' /b '. escapeshellarg($convert_path);
+    $convert_path = 'start "window title" /D'. escapeshellarg(getcwd()) .' /B '. escapeshellarg($convert_path);
   }
 
   $descriptors = array(
