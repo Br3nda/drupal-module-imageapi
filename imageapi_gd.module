@@ -1,4 +1,4 @@
-<?php // $Id: imageapi_gd.module,v 1.6 2008/04/21 12:54:38 dopry Exp $
+<?php // $Id: imageapi_gd.module,v 1.7 2008/04/24 06:46:35 dopry Exp $
 
 /**
  * @file
@@ -42,8 +42,9 @@ function imageapi_gd_image_close($image, $destination) {
 }
 
 function imageapi_gd_image_crop(&$image, $x, $y, $width, $height) {
-  $res = imagecreatetruecolor($width, $height);
-  if (!imagecopy($res, $image->res, 0, 0, $x, $y, $width, $height)) {
+  $res = _gd_create_tmp($image, $width, $height);
+
+  if (!imagecopyresampled($res, $image->res, 0, 0, $x, $y, $width-$x, $height-$y, $width, $height)) {
     return false;
   }
   // destroy the original image and return the modified image.
@@ -52,37 +53,12 @@ function imageapi_gd_image_crop(&$image, $x, $y, $width, $height) {
   $image->info['width'] = $width;
   $image->info['height'] = $height;
   return true;
-  
 }
 
 function imageapi_gd_image_resize(&$image, $width, $height) {
-  $res = imagecreatetruecolor($width, $height);
-  if ($image->info['extension'] == 'png') {
-    $transparency = imagecolorallocatealpha($res, 0, 0, 0, 127);
-    imagealphablending($res, false);
-    imagefilledrectangle($res, 0, 0, $width, $height, $transparency);
-    imagealphablending($res, true);
-    imagesavealpha($res, true);
-  }
-  elseif ($image->info['extension'] == 'gif') {
-    $transparency = imagecolortransparent($image->res);
-    // If we have a specific transparent color.
-    if ($transparency >= 0) {
-      // Get the original image's transparent color's RGB values.
-      $color = imagecolorsforindex($image->res, $transparency);
-      // Allocate the same color in the new image resource.
-      if (isset($color['alpha'])) {
-        $transparency = imagecolorallocatealpha($res, $color['red'], $color['green'], $color['blue'], $color['alpha']);
-      }
-      else {
-        $transparency = imagecolorallocate($res, $color['red'], $color['green'], $color['blue']);
-      }
-      // Completely fill the background of the new image with allocated color.
-      imagefill($res, 0, 0, $transparency);
-      // Set the background color for new image to transparent.
-      imagecolortransparent($res, $transparency);
-    }
-  }
+
+  $res = _gd_create_tmp($image, $width, $height);
+
   if (!imagecopyresampled($res, $image->res, 0, 0, 0, 0, $width, $height, $image->info['width'], $image->info['height'])) {
     return false;
   }
@@ -141,4 +117,42 @@ if (!function_exists('imagerotate')) {
 
 if (!function_exists('imagefilter')) {
   include_once('imagefilter.inc');
+}
+
+
+/** 
+ * create a true color image preserving transparency from a provided
+ * image.
+ */
+function _gd_create_tmp($image, $width, $height) { 
+  $res = imagecreatetruecolor($width, $height);
+  
+  if ($image->info['extension'] == 'gif' || $image->info['extension'] == 'jpg') {
+    // grab transparent color index from src.
+    $transparent = imagecolortransparent($image->res);
+
+    // if indexed transparency, lets preserve it.
+    if ($transparent >= 0) {
+      // get color(r,g,b) for index;
+      $transparent = imagecolorsforindex($image->res, $transparent);
+      // allocate to new image and get new index.
+      $transparent =  (isset($color['alpha'])) 
+        ? imagecolorallocatealpha($res, $color['red'], $color['green'], $color['blue'], $color['alpha'])
+        : imagecolorallocate($res, $color['red'], $color['green'], $color['blue']);
+ 
+      $transparent = imagecolorallocate($res,  $transparent['red'], $transparent['green'],  $transparent['blue']);
+      // flood with our new transparent color.
+      imagefill($res, 0, 0, $transparent);
+      // tell the new image which color is transparent.
+      imagecolortransparent($res, $transparent);
+    }
+  }
+  elseif ($image->info['extension'] == 'png') {
+    imagealphablending($res, false);
+    $transparency = imagecolorallocatealpha($res, 0, 0, 0, 127);
+    imagefill($res, 0, 0, $transparency);
+    imagealphablending($res, true);
+    imagesavealpha($res, true);
+  }
+  return $res;
 }
