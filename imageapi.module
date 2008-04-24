@@ -1,5 +1,5 @@
 <?php
-// $Id: imageapi.module,v 1.14 2008/04/21 12:54:38 dopry Exp $
+// $Id: imageapi.module,v 1.15 2008/04/24 05:24:34 dopry Exp $
 
 /**
  * @file
@@ -148,6 +148,10 @@ function imageapi_default_toolkit() {
  *   Modified ImageAPI Image object.
  */
 function imageapi_image_scale_and_crop(&$image, $width, $height) {
+  $aspect = $image->info['height'] / $image->info['width'];
+  if (empty($height)) $height = $width / $aspect;
+  if (empty($width)) $width = $height * $aspect;
+
   $scale = max($width / $image->info['width'], $height / $image->info['height']);
   $x = round(($image->info['width'] * $scale - $width) / 2);
   $y = round(($image->info['height'] * $scale - $height) / 2);
@@ -176,6 +180,11 @@ function imageapi_image_scale_and_crop(&$image, $width, $height) {
  *   true or false, based on success.
  */
 function imageapi_image_scale(&$image, $width, $height, $upscale = false) {
+  // set width/height according to aspect ratio if either is empty;
+  $aspect = $image->info['height'] / $image->info['width'];
+  if (empty($height)) $height = $width / $aspect;
+  if (empty($width)) $width = $height * $aspect;
+   
   // Don't scale up.
   if (!$upscale && $width >= $image->info['width'] && $height >= $image->info['height']) {
     return true;
@@ -252,6 +261,10 @@ function imageapi_image_rotate(&$image, $degrees, $bgcolor = 0x000000) {
  *   modifed image object.
  */
 function imageapi_image_crop(&$image, $x, $y, $width, $height) {
+  $aspect = $image->info['height'] / $image->info['width'];
+  if (empty($height)) $height = $width / $aspect;
+  if (empty($width)) $width = $height * $aspect;
+
   return call_user_func($image->toolkit .'_image_crop', $image, $x, $y, $width, $height);
 }
  
