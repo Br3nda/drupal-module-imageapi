@@ -1,5 +1,5 @@
 <?php
-// $Id: imageapi_gd.install,v 1.3 2008/04/21 12:54:38 dopry Exp $
+// $Id: imageapi_gd.install,v 1.4 2008/04/30 15:42:40 dopry Exp $
 
 function imageapi_gd_requirements($phase) {
   $requirements = array();
@@ -59,4 +59,11 @@ function imageapi_gd_requirements($phase) {
     }
   }
   return $requirements;
+}
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function imageapi_gd_uninstall() {
+  variable_del('imageapi_jpeg_quality');
 }

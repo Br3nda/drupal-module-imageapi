@@ -1,4 +1,4 @@
-<?php // $Id: imageapi_gd.module,v 1.8 2008/04/30 15:35:07 dopry Exp $
+<?php // $Id: imageapi_gd.module,v 1.9 2008/04/30 15:42:40 dopry Exp $
 
 /**
  * @file
@@ -18,13 +18,13 @@ function imageapi_gd_imageapi_toolkit() {
  * Settings form for the toolkit.
  */
 function imageapi_gd_settings_form() {
-  $form['image_jpeg_quality'] = array(
+  $form['imageapi_jpeg_quality'] = array(
     '#type' => 'textfield',
     '#title' => t('JPEG quality'),
     '#description' => t('Define the image quality for JPEG manipulations. Ranges from 0 to 100. Higher values mean better image quality, but bigger files.'),
     '#size' => 10,
     '#maxlength' => 3,
-    '#default_value' => variable_get('image_jpeg_quality', 75),
+    '#default_value' => variable_get('imageapi_jpeg_quality', 75),
     '#field_suffix' => '%',
   );
   return system_settings_form($form);
@@ -104,7 +104,7 @@ function _gd_close($res, $destination, $extension) {
     return false;
   }
   if ($extension == 'jpeg') {
-    return $close_func($res, $destination, variable_get('image_jpeg_quality', 75));
+    return $close_func($res, $destination, variable_get('imageapi_jpeg_quality', 75));
   }
   else {
     return $close_func($res, $destination);

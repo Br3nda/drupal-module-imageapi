@@ -1,34 +1,13 @@
 <?php
-// $Id: imageapi.install,v 1.3 2008/04/21 12:54:38 dopry Exp $
-
-/**
- *  Implementation of hook_requirements().
- */
-function imageapi_requirements($phase) {
-  $requirements = array();
-  // Ensure translations don't break at install time
-  $t = get_t();
-
-  if (version_compare(phpversion(), IMAGEAPI_MINIMUM_PHP) < 0) {
-    $requirements['imageapi_php'] = array(
-      'title' => $t('ImageAPI PHP'),
-      'description' => $t('ImageAPI requires at least PHP %version.', array('%version' => IMAGEAPI_MINIMUM_PHP)),
-      'severity' => REQUIREMENT_ERROR
-    );
-  }
-  
-  return $requirements;
-}
-
+// $Id: imageapi.install,v 1.4 2008/04/30 15:42:40 dopry Exp $
 
 function imageapi_install() {
 }
 
+/**
+ * Implementation of hook_uninstall().
+ *
+ */
 function imageapi_uninstall() {
-}
-
-function imageapi_enable() {
-}
-
-function imageapi_disable() {
+  variable_del('imageapi_image_toolkit');
 }

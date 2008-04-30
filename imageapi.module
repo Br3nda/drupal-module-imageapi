@@ -1,58 +1,56 @@
 <?php
-// $Id: imageapi.module,v 1.15 2008/04/24 05:24:34 dopry Exp $
+// $Id: imageapi.module,v 1.16 2008/04/30 15:42:40 dopry Exp $
 
 /**
  * @file
  *
- * An ImageAPI supporting additional image plugins as modules. 
+ * An ImageAPI supporting additional image plugins as modules.
  * Images are treated as objects, and images are not written per
  * manipulation as Drupal's core image handling works.
- * 
- * 
- * imageapi image api workflow... 
+ *
+ *
+ * imageapi image api workflow...
  * $image = imageapi_image_open($path) to get an image object for $path...
  * image_X($image, $arg1, $arg2)  to manipulate image object...
  * imageapi_image_close($image) to overwrite original image.
- * 
+ *
  */
 
-define('IMAGEAPI_MINIMUM_PHP', '5.2');
-function imageapi_menu($may_cache) {
+function imageapi_menu() {
   $items = array();
-  if ($may_cache) {
-    $items[] = array(
-      'path' => 'admin/settings/imageapi',
-      'title' => t('ImageAPI'),
-      'description' => t('Configure ImageAPI.'),
-      'callback' => 'drupal_get_form',
-      'callback arguments' => array('imageapi_settings'),
+  $items['admin/settings/imageapi'] = array(
+    'title' => 'ImageAPI',
+    'description' => 'Configure ImageAPI.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('imageapi_settings'),
+    'access arguments' => array('administer imageapi'),
+  );
+
+  $toolkits = imageapi_get_available_toolkits();
+  if ($toolkits) {
+    $items['admin/settings/imageapi/list'] = array(
+      'title' => 'List',
+      'type' => MENU_DEFAULT_LOCAL_TASK,
+      'weight' => -1,
     );
-  }
-  else {
-    $toolkits = imageapi_get_available_toolkits();
-    if ($toolkits) {
-      $items[] = array(
-        'path' => 'admin/settings/imageapi/list',
-        'title' => 'List',
-        'type' => MENU_DEFAULT_LOCAL_TASK,
-        'weight' => -1,
-      );
-      $items[] = array(
-        'path' => 'admin/settings/imageapi/config',
-        'title' => 'Configure',
-        'type' => MENU_LOCAL_TASK,
-        'callback' => 'drupal_get_form',
-        'callback arguments' => array(imageapi_default_toolkit() .'_settings_form'),
-      );
-      foreach ($toolkits as $module => $info) {
-        $items[] = array(
-          'path' => 'admin/settings/imageapi/config/'. $module,
+    $items['admin/settings/imageapi/config'] = array(
+      'title' => 'Configure',
+      'type' => MENU_LOCAL_TASK,
+      'page callback' => 'drupal_get_form',
+      'page arguments' => array(imageapi_default_toolkit() .'_settings_form'),
+      'access arguments' => array('administer imageapi'),
+    );
+    foreach ($toolkits as $module => $info) {
+      if (function_exists($module .'_settings_form')) {
+        $items['admin/settings/imageapi/config/'. $module] = array(
           'title' => $info['name'],
-          'callback' => 'drupal_get_form',
-          'callback arguments' => array($module .'_settings_form'),
+          'page callback' => 'drupal_get_form',
+          'page arguments' => array($module .'_settings_form'),
+          'access arguments' => array('administer imageapi'), 
           'type' => $module == imageapi_default_toolkit() ? MENU_DEFAULT_LOCAL_TASK : MENU_LOCAL_TASK,
         );
       }
+      else {dsm("mssing"); }
     }
   }
   return $items;
@@ -67,16 +65,16 @@ function imageapi_settings() {
     case 0:
       $form['imageapi_toolkits']['#value'] = t('There are no image toolkit modules enabled. Toolkit modules can be enabled from the <a href="!admin-build-modules">module configuration page</a>.', array('!admin-build-modules' => url('admin/build/modules')));
       return $form;
-    
+
     case 1:
       $toolkit = key($toolkits);
-      // The variable needs to be manually set. Otherwise, if a user has two 
-      // toolkits and disables the selected one they won't be able to select the 
+      // The variable needs to be manually set. Otherwise, if a user has two
+      // toolkits and disables the selected one they won't be able to select the
       // remaing toolkit.
       variable_set('imageapi_image_toolkit', $toolkit);
       $form['imageapi_image_toolkit']['#value'] = t('The %toolkit module is the only enabled image toolkit. Drupal will use it for resizing, cropping and other image manipulations.', array('%toolkit' => $toolkits[$toolkit]['name']));
       return $form;
-            
+
     default:
       $options = array();
       foreach ($toolkits as $module => $info) {
@@ -97,34 +95,38 @@ function imageapi_settings() {
 /**
  * Return a list of available toolkits.
  *
- * @return 
+ * @return
  *   An array of the enabled image toolkit modules. The module name is the key
- *   and the value is a sub-array with the module's 'name' and 'description'.  
+ *   and the value is a sub-array with the module's 'name' and 'description'.
  */
 function imageapi_get_available_toolkits() {
   static $toolkits;
- 
+
   if (!isset($toolkits)) {
     $toolkits = array();
     foreach (module_implements('imageapi_toolkit', true) as $module) {
-      $info = _module_parse_info_file(drupal_get_path('module', $module) .'/'. $module .'.info');
+      $info = drupal_parse_info_file(drupal_get_path('module', $module) .'/'. $module .'.info');
       $toolkits[$module] = array('name' => $info['name'], 'description' => $info['description']);
     }
   }
-  
+
   return $toolkits;
 }
 
 /**
  * Retrieve the name of the currently used toolkit.
  *
- * @return 
+ * @return
  *   String containing the name of the toolkit, or false if none is available.
  */
 function imageapi_default_toolkit() {
   $toolkit = variable_get('imageapi_image_toolkit', 'imageapi_gd');
   // Verify that the image toolkit is available.
   if (isset($toolkit) && module_exists($toolkit)) {
+    return $toolkit;
+  }
+  // If it's not fall back to first available toolist.
+  foreach (imageapi_get_available_toolkits() as $toolkit => $info) {
     return $toolkit;
   }
   return false;
@@ -155,7 +157,7 @@ function imageapi_image_scale_and_crop(&$image, $width, $height) {
   $scale = max($width / $image->info['width'], $height / $image->info['height']);
   $x = round(($image->info['width'] * $scale - $width) / 2);
   $y = round(($image->info['height'] * $scale - $height) / 2);
- 
+
   if (imageapi_image_resize($image, $image->info['width'] * $scale, $image->info['height'] * $scale)) {
     return imageapi_image_crop($image, $x, $y, $width, $height);
   }
@@ -197,10 +199,10 @@ function imageapi_image_scale(&$image, $width, $height, $upscale = false) {
   else {
     $width = (int) round($height / $aspect);
   }
-  
+
   return call_user_func($image->toolkit .'_image_resize', $image, $width, $height);
 }
- 
+
 /**
  * Resize an image to the given dimensions (ignoring aspect ratio).
  *
@@ -221,7 +223,7 @@ function imageapi_image_scale(&$image, $width, $height, $upscale = false) {
 function imageapi_image_resize(&$image, $width, $height) {
   return call_user_func($image->toolkit .'_image_resize', $image, $width, $height);
 }
- 
+
 /**
  * Rotate an image by the given number of degrees.
  *
@@ -232,8 +234,8 @@ function imageapi_image_resize(&$image, $width, $height) {
  * @param $degrees
  *   The number of (clockwise) degrees to rotate the image.
  * @param $bg_color
- *   An hexidecimal integer specifying the background color to use for the 
- *   uncovered area of the image after the rotation. E.g. 0x000000 for black, 
+ *   An hexidecimal integer specifying the background color to use for the
+ *   uncovered area of the image after the rotation. E.g. 0x000000 for black,
  *   0xff00ff for magenta, and 0xffffff for white.
  * @param $toolkit
  *   An optional override of the default image toolkit.
@@ -243,7 +245,7 @@ function imageapi_image_resize(&$image, $width, $height) {
 function imageapi_image_rotate(&$image, $degrees, $bgcolor = 0x000000) {
   return call_user_func($image->toolkit .'_image_rotate', $image, $degrees, $bgcolor);
 }
- 
+
 /**
  * Crop an image to the rectangle specified by the given rectangle.
  *
@@ -257,7 +259,7 @@ function imageapi_image_rotate(&$image, $degrees, $bgcolor = 0x000000) {
  *   The target width in pixels.
  * @param $height
  *   The target height in pixels.
- * @return 
+ * @return
  *   modifed image object.
  */
 function imageapi_image_crop(&$image, $x, $y, $width, $height) {
@@ -267,7 +269,7 @@ function imageapi_image_crop(&$image, $x, $y, $width, $height) {
 
   return call_user_func($image->toolkit .'_image_crop', $image, $x, $y, $width, $height);
 }
- 
+
 
 function imageapi_image_desaturate(&$image) {
   return call_user_func($image->toolkit .'_image_desaturate', $image);
@@ -286,7 +288,7 @@ function imageapi_image_open($file, $toolkit = false) {
       return $image;
     }
   }
-  watchdog('imageapi', t('ImageAPI failed to open %file with %toolkit', array('%file' => $file, '%toolkit' => $toolkit)), WATCHDOG_WARNING);
+  watchdog('imageapi', 'ImageAPI failed to open %file with %toolkit', array('%file' => $file, '%toolkit' => $toolkit), WATCHDOG_WARNING);
   return false;
 }
 
@@ -308,11 +310,10 @@ function imageapi_image_close($image, $destination = '') {
     if (@chmod($destination, 0775)) {
       return $return;
     } 
-    watchdog('imageapi', t('Could not set permissons on destination file: %file', array('%file' => $destination)));
+    watchdog('imageapi', 'Could not set permissons on destination file: %file', array('%file' => $destination));
   }
   return false;
 }
-
 
 
 /**

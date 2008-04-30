@@ -1,4 +1,4 @@
-<?php  // $Id: imageapi_imagemagick.module,v 1.10 2008/04/23 01:36:08 dopry Exp $
+<?php  // $Id: imageapi_imagemagick.module,v 1.11 2008/04/30 15:42:40 dopry Exp $
 
 /**
  * @file
@@ -26,7 +26,7 @@ function imageapi_imagemagick_settings_form() {
     '#maxlength' => 3,
     '#default_value' => variable_get('imageapi_imagemagick_quality', 75),
     '#field_suffix' => '%',
-    '#validate' => array('imageapi_imagemagick_quality_element_validate' => array()),
+    '#element_validate' => array('imageapi_imagemagick_quality_element_validate'),
   );
   
   $form['imageapi_imagemagick_binary'] = array(
@@ -45,7 +45,7 @@ function imageapi_imagemagick_settings_form() {
     '#default_value' => variable_get('imageapi_imagemagick_convert', '/usr/bin/convert'),
     '#required' => true,
     '#description' => t('Specify the complete path to the ImageMagic <kbd>convert</kbd> binary. For example: <kbd>/usr/bin/convert</kbd> or <kbd>C:\Program Files\ImageMagick-6.3.4-Q16\convert.exe</kbd>'),
-    '#validate' => array('_imageapi_imagemagick_validate_path' => array()),
+    '#element_validate' => array('imageapi_imagemagick_validate_path'),
   );
 
   $form['imageapi_imagemagick_binary']['imageapi_imagemagick_debugging'] = array(
@@ -53,13 +53,15 @@ function imageapi_imagemagick_settings_form() {
     '#title' => t('Display debugging information'),
     '#default_value' => variable_get('imageapi_imagemagick_debugging', 0),
     '#description' => t('Checking this option will display the ImageMagick commands and ouput to users with the <em>administer site configuration</em> permission.'),
+    '#weight' => 2,
   );
+
   return system_settings_form($form);
 }
 
-function _imageapi_imagemagick_build_version($form_element, $form_values) {
+function _imageapi_imagemagick_build_version($form_element, $form_state) {
   // make sure path is set and valid before running after build.
-  if ($path_errors = _imageapi_imagemagick_check_path($form_values['imageapi_imagemagick_convert'])) {
+  if ($path_errors = _imageapi_imagemagick_check_path($form_state['values']['imageapi_imagemagick_convert'])) {
     // check here is primarily for pre-existing bad settings...
     // the #validate should prevent users from adding bad paths.
     $form_element['imageapi_imagemagick_binary'] = array(
@@ -79,7 +81,7 @@ function _imageapi_imagemagick_build_version($form_element, $form_values) {
   return $form_element;
 }
 
-function _imageapi_imagemagick_validate_path($element) {
+function imageapi_imagemagick_validate_path($element) {
   if ($errors = _imageapi_imagemagick_check_path($element['#value'])) {
     form_set_error($element['#parents'][0], implode('<br />', $errors));
     //form_set_value($element['#parents'][0], variable_get('imageapi_imagemagick_convert', '/usr/bin/convert'));
@@ -170,7 +172,7 @@ function _imageapi_imagemagick_check_path($path) {
 function _imageapi_imagemagick_convert_exec($command_args, &$output, &$errors) {
   $convert_path = variable_get('imageapi_imagemagick_convert', '/usr/bin/convert');
   if ($errors = _imageapi_imagemagick_check_path($convert_path)) {
-    watchdog('imageapi imagemagick', implode('<br />', $errors), WATCHDOG_ERRROR);
+    watchdog('imageapi imagemagick', implode('<br />', $errors), WATCHDOG_ERROR);
     return false;
   }
 
