@@ -1,5 +1,5 @@
 <?php
-// $Id: imagefilter.inc,v 1.3 2008/04/21 12:54:38 dopry Exp $
+// $Id: imagefilter.inc,v 1.3.2.1 2008/05/07 19:25:40 dopry Exp $
 
 //Made by Chao Xu(Mgccl) 3/1/07
 //www.webdevlogs.com
@@ -7,7 +7,7 @@
 
 // Drupal code style and some restructuring by dopry. http://www.darrelopry.com
 
-
+// define constants.
 define('IMG_FILTER_NEGATE', 0);
 define('IMG_FILTER_GRAYSCALE', 1);
 define('IMG_FILTER_BRIGHTNESS', 2);
@@ -20,7 +20,10 @@ define('IMG_FILTER_SELECTIVE_BLUR', 8);
 define('IMG_FILTER_MEAN_REMOVAL', 9);
 define('IMG_FILTER_SMOOTH', 10);
 
+// define filter included so we can check if we're using 
+// gd's native imagefilter or the h4xor version here.
 define('IMAGEAPI_IMAGEFILTER_PHP', 1);
+
 /** 
  * walk each pixel in an image applying $callback to it.
  */
@@ -56,7 +59,6 @@ function _imageapi_gd_pixel_negate(&$r, &$g, &$b, &$a) {
   $g = 255 - $g;
   $b = 255 - $b;
 }
-
 
 function _imageapi_gd_pixel_grayscale(&$r, &$g, &$b, &$a) {
   $r = round($r * 0.299 + $g * 0.587 + $b * 0.114);
