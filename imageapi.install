@@ -1,13 +1,44 @@
 <?php
-// $Id: imageapi.install,v 1.4 2008/04/30 15:42:40 dopry Exp $
+// $Id: imageapi.install,v 1.3.2.1 2008/05/12 17:54:48 dopry Exp $
+
+/**
+ *  Implementation of hook_requirements().
+ */
+define('IMAGEAPI_MINIMUM_PHP', '5.1');
+define('IMAGEAPI_RECOMMENDED_PHP', '5.2');
+
+function imageapi_requirements($phase) {
+  $requirements = array();
+  // Ensure translations don't break at install time
+  $t = get_t();
+
+  if (version_compare(phpversion(), IMAGEAPI_RECOMMENDED_PHP) < 0) {
+     $requirements['imageapi_php'] = array(
+      'title' => $t('ImageAPI PHP'),
+      'description' => $t('ImageAPI recommends at least PHP %version. Older versions of PHP are not supported but may function.', array('%version' => IMAGEAPI_RECOMMENDED_PHP)),
+      'severity' => REQUIREMENT_WARNING,
+    );
+  }
+  if (version_compare(phpversion(), IMAGEAPI_MINIMUM_PHP) < 0) {
+    $requirements['imageapi_php'] = array(
+      'title' => $t('ImageAPI PHP'),
+      'description' => $t('ImageAPI requires at least PHP %version.', array('%version' => IMAGEAPI_MINIMUM_PHP)),
+      'severity' => REQUIREMENT_ERROR,
+    );
+  }
+  
+  return $requirements;
+}
+
 
 function imageapi_install() {
 }
 
-/**
- * Implementation of hook_uninstall().
- *
- */
 function imageapi_uninstall() {
-  variable_del('imageapi_image_toolkit');
+}
+
+function imageapi_enable() {
+}
+
+function imageapi_disable() {
 }

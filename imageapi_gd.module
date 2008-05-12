@@ -1,4 +1,4 @@
-<?php // $Id: imageapi_gd.module,v 1.8.2.1 2008/05/07 19:25:40 dopry Exp $
+<?php // $Id: imageapi_gd.module,v 1.8.2.2 2008/05/12 17:54:48 dopry Exp $
 
 /**
  * @file
@@ -113,11 +113,11 @@ function _gd_close($res, $destination, $extension) {
 }
 
 if (!function_exists('imagerotate')) {
-  include_once('imagerotate.inc');
+  require_once drupal_get_path('module', 'imageapi') .'/imagerotate.inc';
 }
 
 if (!function_exists('imagefilter')) {
-  include_once('imagefilter.inc');
+  require_once drupal_get_path('module', 'imageapi') .'/imagefilter.inc';
 }
 
 
