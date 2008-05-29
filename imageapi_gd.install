@@ -1,5 +1,5 @@
 <?php
-// $Id: imageapi_gd.install,v 1.4 2008/04/30 15:42:40 dopry Exp $
+// $Id: imageapi_gd.install,v 1.5 2008/05/29 02:35:31 drewish Exp $
 
 function imageapi_gd_requirements($phase) {
   $requirements = array();
@@ -8,19 +8,18 @@ function imageapi_gd_requirements($phase) {
   $gd = function_exists('imagegd2');
 
   if (!$gd) {
-    $requirements['gd'] = array(
+    $requirements['imageapi_gd'] = array(
       'title' =>  $t('GD library'),
       'value' => $t('Not installed'),
       'severity' => REQUIREMENT_ERROR,
       'description' => $t('The GD library for PHP is missing or outdated. Please check the <a href="@url">PHP image documentation</a> for information on how to correct this.', array('@url' => 'http://www.php.net/manual/en/image.setup.php')),
     );
     return $requirements;
- 
   } 
 
   // report version.
   $info = gd_info();
-  $requirements['gd'] = array(
+  $requirements['imageapi_gd'] = array(
     'title' =>  $t('GD library'),
     'value' => $info['GD Version'],
     'severity' => REQUIREMENT_OK,
@@ -37,10 +36,12 @@ function imageapi_gd_requirements($phase) {
     );
   }
 
-  
 
   // check non required stuff aka not installation blockers.
   if ($phase == 'runtime') {
+    if (!function_exists('imagerotate')) {
+      require_once drupal_get_path('module', 'imageapi') .'/imagerotate.inc';
+    }
     if (IMAGEAPI_IMAGEROTATE_PHP == 1) {
       $requirements['imageapi_gd_imagerotate'] = array(
         'title' => $t('GD Image Rotation'),
@@ -48,6 +49,10 @@ function imageapi_gd_requirements($phase) {
         'severity' => REQUIREMENT_WARNING,
         'description' => $t('The installed version of PHP GD does not support image rotations. It was probably compiled using the official GD libraries from http://www.libgd.org instead of the GD library bundled with PHP. You should recompile PHP --with-gd using the bundled GD library. See: @url. An implementation of imagerotate in PHP will used in the interim.',  array('@url' => 'http://www.php.net/manual/en/image.setup.php')),
       );
+    }
+
+    if (!function_exists('imagefilter')) {
+      require_once drupal_get_path('module', 'imageapi') .'/imagefilter.inc';
     }
     if (IMAGEAPI_IMAGEFILTER_PHP == 1) {
       $requirements['imageapi_gd_imagefilter'] = array(
