@@ -1,5 +1,5 @@
 <?php
-// $Id: imageapi_gd.install,v 1.6 2008/05/29 02:47:01 drewish Exp $
+// $Id: imageapi_gd.install,v 1.7 2008/05/29 03:30:59 drewish Exp $
 
 function imageapi_gd_requirements($phase) {
   $requirements = array();
@@ -40,9 +40,6 @@ function imageapi_gd_requirements($phase) {
   // check non required stuff aka not installation blockers.
   if ($phase == 'runtime') {
     if (!function_exists('imagerotate')) {
-      require_once drupal_get_path('module', 'imageapi') .'/imagerotate.inc';
-    }
-    if (IMAGEAPI_IMAGEROTATE_PHP == 1) {
       $requirements['imageapi_gd_imagerotate'] = array(
         'title' => $t('GD Image Rotation'),
         'value' => $t('Low Quality / Poor Performance'),
@@ -52,9 +49,6 @@ function imageapi_gd_requirements($phase) {
     }
 
     if (!function_exists('imagefilter')) {
-      require_once drupal_get_path('module', 'imageapi') .'/imagefilter.inc';
-    }
-    if (IMAGEAPI_IMAGEFILTER_PHP == 1) {
       $requirements['imageapi_gd_imagefilter'] = array(
         'title' => $t('GD Image Filtering'),
         'value' => $t('Low Quality / Poor Performance'),
