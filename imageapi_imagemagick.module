@@ -1,4 +1,4 @@
-<?php  // $Id: imageapi_imagemagick.module,v 1.10.2.2 2008/05/29 02:47:28 drewish Exp $
+<?php  // $Id: imageapi_imagemagick.module,v 1.10.2.3 2008/05/29 16:33:32 dopry Exp $
 
 /**
  * @file
@@ -128,7 +128,12 @@ function imageapi_imagemagick_image_resize(&$image, $width, $height) {
 }
 
 function imageapi_imagemagick_image_rotate(&$image, $degrees, $bgcolor) {
-  $bgcolor = str_replace('0x', '#', $bgcolor); 
+  if (is_numeric($bgcolor)) {
+    $bgcolor = '#'. str_pad(dechex($bgcolor), 6, 0);
+  }
+  else {
+    $bgcolor = str_replace('0x', '#', $bgcolor);
+  }
   $image->ops[] = '-rotate '. (float) $degrees .' -background '. escapeshellarg($bgcolor) ;
   return true;
 } 
