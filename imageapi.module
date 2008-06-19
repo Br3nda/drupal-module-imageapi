@@ -1,5 +1,5 @@
 <?php
-// $Id: imageapi.module,v 1.18 2008/05/29 16:52:42 dopry Exp $
+// $Id: imageapi.module,v 1.19 2008/06/19 22:29:19 drewish Exp $
 
 /**
  * @file
@@ -53,7 +53,9 @@ function imageapi_menu() {
           'type' => $module == imageapi_default_toolkit() ? MENU_DEFAULT_LOCAL_TASK : MENU_LOCAL_TASK,
         );
       }
-      else {dsm("mssing"); }
+      else {
+        drupal_set_message(t('ImageAPI toolkit missing settings form'), 'error'); 
+      }
     }
   }
   return $items;
