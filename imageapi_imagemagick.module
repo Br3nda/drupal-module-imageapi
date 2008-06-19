@@ -1,4 +1,4 @@
-<?php  // $Id: imageapi_imagemagick.module,v 1.10.2.3 2008/05/29 16:33:32 dopry Exp $
+<?php  // $Id: imageapi_imagemagick.module,v 1.10.2.4 2008/06/19 23:56:30 drewish Exp $
 
 /**
  * @file
@@ -96,21 +96,12 @@ function imageapi_imagemagick_quality_element_validate($element) {
 }
 
 function imageapi_imagemagick_image_open($image) {
-  $ext = array_pop(explode('.', $image->source));
-  $image->res = tempnam(file_directory_temp(), 'imageapi_imagemagick_') .".$ext";
-  if (!file_copy($image->source, $image->res)) {
-    return false;
-  }
   $image->ops = array();
-  register_shutdown_function('file_delete', $image->res);
   return $image;
 }
 
 function imageapi_imagemagick_image_close($image, $dst) {
-  if (!_imageapi_imagemagick_convert($image->res, $image->res, $image->ops)) {
-    return false;
-  }
-  return file_move($image->res, $dst);
+  return _imageapi_imagemagick_convert($image->source, $dst, $image->ops);
 }
 
 function imageapi_imagemagick_image_crop(&$image, $x, $y, $width, $height) {
