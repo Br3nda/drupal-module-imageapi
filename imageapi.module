@@ -1,5 +1,5 @@
 <?php
-// $Id: imageapi.module,v 1.15.2.4 2008/06/07 23:02:18 dopry Exp $
+// $Id: imageapi.module,v 1.15.2.5 2008/07/09 02:44:14 dopry Exp $
 
 /**
  * @file
@@ -248,6 +248,31 @@ function imageapi_image_rotate(&$image, $degrees, $bgcolor = 0x000000) {
   return call_user_func($image->toolkit .'_image_rotate', $image, $degrees, $bgcolor);
 }
  
+/**
+ * Sharpen an image given some sharpening parameters.
+ *
+ * NOTE: These parameters only have an effect when Imagemagick is used.
+ *       GD will used a fixed convolution matrix as described in imageapi_gd.module
+ *
+ * @param $image
+ *   An imageapi image object returned by imageapi_image_open().
+ * @param $radius
+ *   The radius of the gaussian, in pixels, not counting the center pixel. (default 0.5)
+ * @param $sigma
+ *   The standard deviation of the gaussian, in pixels. (default 0.5)
+ * @param $amount
+ *   The percentage of the difference between the original and the blur image that is
+ *   added back into the original. (default 100)
+ * @param $threshold
+ *   The threshold, as a fraction of max RGB levels, needed to apply the difference
+ *   amount. (default 0.05)
+ * @return
+ *   True or false, based on success.
+ */
+function imageapi_image_sharpen(&$image, $radius, $sigma, $amount, $threshold) {
+  return call_user_func($image->toolkit .'_image_sharpen', $image, $radius, $sigma, $amount, $threshold);
+}
+
 /**
  * Crop an image to the rectangle specified by the given rectangle.
  *
