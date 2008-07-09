@@ -1,5 +1,5 @@
 <?php
-// $Id: imageapi.module,v 1.19 2008/06/19 22:29:19 drewish Exp $
+// $Id: imageapi.module,v 1.20 2008/07/09 02:49:47 dopry Exp $
 
 /**
  * @file
@@ -160,8 +160,8 @@ function imageapi_image_scale_and_crop(&$image, $width, $height) {
   if (empty($width)) $width = $height * $aspect;
 
   $scale = max($width / $image->info['width'], $height / $image->info['height']);
-  $x = round(($image->info['width'] * $scale - $width) / 2);
-  $y = round(($image->info['height'] * $scale - $height) / 2);
+  $x = (int) round(($image->info['width'] * $scale - $width) / 2);
+  $y = (int) round(($image->info['height'] * $scale - $height) / 2);
 
   if (imageapi_image_resize($image, $image->info['width'] * $scale, $image->info['height'] * $scale)) {
     return imageapi_image_crop($image, $x, $y, $width, $height);
@@ -191,19 +191,22 @@ function imageapi_image_scale(&$image, $width, $height, $upscale = false) {
   $aspect = $image->info['height'] / $image->info['width'];
   if (empty($height)) $height = $width / $aspect;
   if (empty($width)) $width = $height * $aspect;
-   
+  
   // Don't scale up.
-  if (!$upscale && $width >= $image->info['width'] && $height >= $image->info['height']) {
+  if (!$upscale && round($width) >= $image->info['width'] && round($height) >= $image->info['height']) {
     return true;
   }
 
   $aspect = $image->info['height'] / $image->info['width'];
   if ($aspect < $height / $width) {
-    $height = (int) round($width * $aspect);
+    $height = $width * $aspect;
   }
   else {
-    $width = (int) round($height / $aspect);
+    $width = $height / $aspect;
   }
+
+  $width = (int) round($width);
+  $height = (int) round($height);
 
   return call_user_func($image->toolkit .'_image_resize', $image, $width, $height);
 }
@@ -226,6 +229,9 @@ function imageapi_image_scale(&$image, $width, $height, $upscale = false) {
  *   True or false, based on success.
  */
 function imageapi_image_resize(&$image, $width, $height) {
+  $width = (int) round($width);
+  $height = (int) round($height);
+  
   return call_user_func($image->toolkit .'_image_resize', $image, $width, $height);
 }
 
@@ -248,6 +254,31 @@ function imageapi_image_rotate(&$image, $degrees, $bgcolor = 0x000000) {
 }
 
 /**
+ * Sharpen an image given some sharpening parameters.
+ *
+ * NOTE: These parameters only have an effect when Imagemagick is used.
+ *       GD will used a fixed convolution matrix as described in imageapi_gd.module
+ *
+ * @param $image
+ *   An imageapi image object returned by imageapi_image_open().
+ * @param $radius
+ *   The radius of the gaussian, in pixels, not counting the center pixel. (default 0.5)
+ * @param $sigma
+ *   The standard deviation of the gaussian, in pixels. (default 0.5)
+ * @param $amount
+ *   The percentage of the difference between the original and the blur image that is
+ *   added back into the original. (default 100)
+ * @param $threshold
+ *   The threshold, as a fraction of max RGB levels, needed to apply the difference
+ *   amount. (default 0.05)
+ * @return
+ *   True or false, based on success.
+ */
+function imageapi_image_sharpen(&$image, $radius, $sigma, $amount, $threshold) {
+  return call_user_func($image->toolkit .'_image_sharpen', $image, $radius, $sigma, $amount, $threshold);
+}
+
+/**
  * Crop an image to the rectangle specified by the given rectangle.
  *
  * @param $image
@@ -267,6 +298,9 @@ function imageapi_image_crop(&$image, $x, $y, $width, $height) {
   $aspect = $image->info['height'] / $image->info['width'];
   if (empty($height)) $height = $width / $aspect;
   if (empty($width)) $width = $height * $aspect;
+
+  $width = (int) round($width);
+  $height = (int) round($height);
 
   return call_user_func($image->toolkit .'_image_crop', $image, $x, $y, $width, $height);
 }

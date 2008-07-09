@@ -1,4 +1,4 @@
-<?php  // $Id: imageapi_imagemagick.module,v 1.14 2008/05/29 16:36:14 dopry Exp $
+<?php  // $Id: imageapi_imagemagick.module,v 1.15 2008/07/09 02:49:47 dopry Exp $
 
 /**
  * @file
@@ -129,6 +129,12 @@ function imageapi_imagemagick_image_rotate(&$image, $degrees, $bgcolor) {
   $image->ops[] = '-rotate '. (float) $degrees .' -background '. escapeshellarg($bgcolor) ;
   return true;
 } 
+
+function imageapi_imagemagick_image_sharpen(&$image, $radius, $sigma, $amount, $threshold) {
+  $unsharp_arg = $radius .'x'. $sigma .'+'. $amount/100 .'+'. $threshold;
+  $image->ops[] = '-unsharp '. $unsharp_arg;
+  return true;
+}
 
 function imageapi_imagemagick_image_desaturate(&$image) {
   $image->ops[] = '-colorspace GRAY';
