@@ -1,5 +1,5 @@
 <?php
-// $Id: imageapi.module,v 1.20 2008/07/09 02:49:47 dopry Exp $
+// $Id: imageapi.module,v 1.21 2008/07/14 20:40:49 drewish Exp $
 
 /**
  * @file
@@ -15,6 +15,13 @@
  * imageapi_image_close($image) to overwrite original image.
  *
  */
+
+/**
+ * Implementation of hook_perm().
+ */
+function imageapi_perm() {
+  return array('administer imageapi');
+}
 
 /**
  * Implementation of hook_menu().
@@ -49,12 +56,12 @@ function imageapi_menu() {
           'title' => $info['name'],
           'page callback' => 'drupal_get_form',
           'page arguments' => array($module .'_settings_form'),
-          'access arguments' => array('administer imageapi'), 
+          'access arguments' => array('administer imageapi'),
           'type' => $module == imageapi_default_toolkit() ? MENU_DEFAULT_LOCAL_TASK : MENU_LOCAL_TASK,
         );
       }
       else {
-        drupal_set_message(t('ImageAPI toolkit missing settings form'), 'error'); 
+        drupal_set_message(t('ImageAPI toolkit missing settings form'), 'error');
       }
     }
   }
@@ -321,7 +328,7 @@ function imageapi_image_desaturate(&$image) {
  * Open an image file and return an imageapi image object. Any changes to the
  * file are not saved until imageapi_image_close() is called.
  *
- * @param $file 
+ * @param $file
  *   Path to an image file.
  * @param $toolkit
  *   An optional, image toolkit name to override the default.
@@ -348,7 +355,7 @@ function imageapi_image_open($file, $toolkit = false) {
 /**
  * Close the image and save the changes to a file.
  *
- * @param $image 
+ * @param $image
  *   imageAPI image object.
  *
  * @param $destination
@@ -362,7 +369,7 @@ function imageapi_image_close($image, $destination = '') {
   if ($return = call_user_func($image->toolkit .'_image_close', $image, $destination)) {
     if (@chmod($destination, 0775)) {
       return $return;
-    } 
+    }
     watchdog('imageapi', 'Could not set permissons on destination file: %file', array('%file' => $destination));
   }
   return false;
@@ -373,7 +380,7 @@ function imageapi_image_close($image, $destination = '') {
  * Convert a hex string to its RGBA (Red, Green, Blue, Alpha) integer
  * components.
  *
- * @param $hex 
+ * @param $hex
  *   A string specifing an RGB color in the formats:
  *   '#ABC','ABC','#ABCD','ABCD','#AABBCC','AABBCC','#AABBCCDD','AABBCCDD'
  * @return
