@@ -1,5 +1,5 @@
 <?php
-// $Id: imageapi.install,v 1.3.2.1 2008/05/12 17:54:48 dopry Exp $
+// $Id: imageapi.install,v 1.3.2.2 2008/07/23 21:11:35 dopry Exp $
 
 /**
  *  Implementation of hook_requirements().
@@ -11,6 +11,17 @@ function imageapi_requirements($phase) {
   $requirements = array();
   // Ensure translations don't break at install time
   $t = get_t();
+
+  // Check for an image library.
+  if (count(imageapi_get_available_toolkits()) == 0) {
+    $requirements['imageapi_toolkits'] = array(
+      'title' => $t('ImageAPI Toolkit'),
+      'value' => $t('No image toolkits available'),
+      'severity' => REQUIREMENT_ERROR,
+      'description' => $t('ImageAPI requires a toolkit such as ImageAPI GD or ImageAPI Imagemagick to function.'),
+    );
+  }
+ 
 
   if (version_compare(phpversion(), IMAGEAPI_RECOMMENDED_PHP) < 0) {
      $requirements['imageapi_php'] = array(
