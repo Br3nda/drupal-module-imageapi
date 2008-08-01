@@ -1,6 +1,5 @@
-; $Id: imageapi_gd.info,v 1.3 2008/04/30 15:42:40 dopry Exp $
+; $Id: imageapi_gd.info,v 1.4 2008/08/01 18:52:22 dopry Exp $
 name = ImageAPI GD2
 description = Uses PHP's built-in GD2 image processing support.
 package = ImageCache
-dependencies[] = imageapi
 core = 6.x
