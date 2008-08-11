@@ -1,4 +1,4 @@
-<?php  // $Id: imageapi_imagemagick.module,v 1.10.2.5 2008/07/09 02:44:14 dopry Exp $
+<?php  // $Id: imageapi_imagemagick.module,v 1.10.2.6 2008/08/11 17:11:26 drewish Exp $
 
 /**
  * @file
@@ -29,7 +29,7 @@ function imageapi_imagemagick_settings_form() {
     '#field_suffix' => '%',
     '#validate' => array('imageapi_imagemagick_quality_element_validate' => array()),
   );
-  
+
   $form['imageapi_imagemagick_binary'] = array(
     '#type' => 'fieldset',
     '#title' => t('ImageMagick Binary'),
@@ -89,7 +89,7 @@ function _imageapi_imagemagick_validate_path($element) {
   return true;
 }
 
-function imageapi_imagemagick_quality_element_validate($element) {  
+function imageapi_imagemagick_quality_element_validate($element) {
   if ($element['#value'] < 0 || $element['#value'] > 100) {
     form_set_error($element['#name'], t('Compression Quality must be a value between 1 and 100.'));
   }
@@ -127,7 +127,7 @@ function imageapi_imagemagick_image_rotate(&$image, $degrees, $bgcolor) {
   }
   $image->ops[] = '-rotate '. (float) $degrees .' -background '. escapeshellarg($bgcolor) ;
   return true;
-} 
+}
 
 function imageapi_imagemagick_image_sharpen(&$image, $radius, $sigma, $amount, $threshold) {
   $unsharp_arg = $radius .'x'. $sigma .'+'. $amount/100 .'+'. $threshold;
@@ -145,10 +145,10 @@ function imageapi_imagemagick_image_desaturate(&$image) {
  */
 function _imageapi_imagemagick_convert($source, $dest, $args) {
   $args['quality'] = '-quality '. escapeshellarg(variable_get('imageapi_imagemagick_quality', 75));
-  $args[] = escapeshellarg($source);
-  $args[] = escapeshellarg($dest);
-
-  $command = implode(' ', $args);
+  // To make use of ImageMagick 6's parenthetical command grouping we need to make
+  // the $source image the first parameter and $dest the last.
+  // See http://www.imagemagick.org/Usage/basics/#cmdline for more info.
+  $command = escapeshellarg($source) .' '. implode(' ', $args) .' '. escapeshellarg($dest);
 
   if (0 != _imageapi_imagemagick_convert_exec($command, $output, $errors)) {
     return false;
