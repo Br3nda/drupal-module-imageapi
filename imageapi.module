@@ -1,5 +1,5 @@
 <?php
-// $Id: imageapi.module,v 1.21 2008/07/14 20:40:49 drewish Exp $
+// $Id: imageapi.module,v 1.22 2008/10/07 20:24:03 drewish Exp $
 
 /**
  * @file
@@ -53,7 +53,8 @@ function imageapi_menu() {
     foreach ($toolkits as $module => $info) {
       if (function_exists($module .'_settings_form')) {
         $items['admin/settings/imageapi/config/'. $module] = array(
-          'title' => $info['name'],
+          'title' => '@name',
+          'title arguments' => array('@name' => $info['name']),
           'page callback' => 'drupal_get_form',
           'page arguments' => array($module .'_settings_form'),
           'access arguments' => array('administer imageapi'),

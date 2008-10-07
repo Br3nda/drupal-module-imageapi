@@ -1,4 +1,4 @@
-<?php  // $Id: imageapi_imagemagick.module,v 1.16 2008/08/08 18:03:16 drewish Exp $
+<?php  // $Id: imageapi_imagemagick.module,v 1.17 2008/10/07 20:24:03 drewish Exp $
 
 /**
  * @file
@@ -174,7 +174,7 @@ function _imageapi_imagemagick_check_path($path) {
 function _imageapi_imagemagick_convert_exec($command_args, &$output, &$errors) {
   $convert_path = variable_get('imageapi_imagemagick_convert', '/usr/bin/convert');
   if ($errors = _imageapi_imagemagick_check_path($convert_path)) {
-    watchdog('imageapi imagemagick', implode('<br />', $errors), WATCHDOG_ERROR);
+    watchdog('imageapi imagemagick', '!errors', array('!errors' => implode('<br />', $errors)), WATCHDOG_ERROR);
     return false;
   }
 
