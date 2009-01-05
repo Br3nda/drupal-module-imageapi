@@ -1,4 +1,4 @@
-<?php  // $Id: imageapi_imagemagick.module,v 1.10.2.6 2008/08/11 17:11:26 drewish Exp $
+<?php  // $Id: imageapi_imagemagick.module,v 1.10.2.7 2009/01/05 23:00:00 drewish Exp $
 
 /**
  * @file
@@ -22,7 +22,7 @@ function imageapi_imagemagick_settings_form() {
   $form['imageapi_imagemagick_quality'] = array(
     '#type' => 'textfield',
     '#title' => t('Compression Quality'),
-    '#description' => t('Ranges from 1 to 100. Higher values mean better image quality, but bigger files.'),
+    '#description' => t('Ranges from 0 to 100. Higher values mean better image quality, but bigger files.'),
     '#size' => 10,
     '#maxlength' => 3,
     '#default_value' => variable_get('imageapi_imagemagick_quality', 75),
@@ -91,7 +91,7 @@ function _imageapi_imagemagick_validate_path($element) {
 
 function imageapi_imagemagick_quality_element_validate($element) {
   if ($element['#value'] < 0 || $element['#value'] > 100) {
-    form_set_error($element['#name'], t('Compression Quality must be a value between 1 and 100.'));
+    form_set_error($element['#name'], t('Compression Quality must be a value between 0 and 100.'));
   }
 }
 
