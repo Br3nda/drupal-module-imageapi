@@ -1,5 +1,5 @@
 <?php
-// $Id: imageapi.install,v 1.3.2.2 2008/07/23 21:11:35 dopry Exp $
+// $Id: imageapi.install,v 1.3.2.3 2009/01/06 00:19:08 drewish Exp $
 
 /**
  *  Implementation of hook_requirements().
@@ -12,16 +12,24 @@ function imageapi_requirements($phase) {
   // Ensure translations don't break at install time
   $t = get_t();
 
-  // Check for an image library.
-  if (count(imageapi_get_available_toolkits()) == 0) {
-    $requirements['imageapi_toolkits'] = array(
-      'title' => $t('ImageAPI Toolkit'),
-      'value' => $t('No image toolkits available'),
-      'severity' => REQUIREMENT_ERROR,
-      'description' => $t('ImageAPI requires a toolkit such as ImageAPI GD or ImageAPI Imagemagick to function.'),
-    );
+  // Check this at runtime rather than install time because the order of
+  // installation doesn't take dependencies into account. ImageAPI may have
+  // been installed by not loaded and if we report a requirement error
+  // because we can't find its function or no toolkit is enabled modules that
+  // depend on us will still be enabled but will have a missing dependency.
+  // Seems like a better idea to let everything get enabled and then inform
+  // them of the problem.
+  if ($phase == 'runtime') {
+    if (count(imageapi_get_available_toolkits()) == 0) {
+      $requirements['imageapi_toolkits'] = array(
+        'title' => $t('ImageAPI Toolkit'),
+        'value' => $t('No ImageAPI toolkits available'),
+        'severity' => REQUIREMENT_ERROR,
+        'description' => $t('ImageAPI requires a Toolkit such as ImageAPI GD or ImageAPI ImageMagick to function. Goto !modules and enable one of them.', array(
+'!modules' => l('admin/build/modules', 'admin/build/modules'))),
+      );
+    }
   }
- 
 
   if (version_compare(phpversion(), IMAGEAPI_RECOMMENDED_PHP) < 0) {
      $requirements['imageapi_php'] = array(
