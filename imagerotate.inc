@@ -1,5 +1,5 @@
 <?php 
-// $Id: imagerotate.inc,v 1.3 2008/04/21 12:54:38 dopry Exp $
+// $Id: imagerotate.inc,v 1.3.4.1 2009/02/13 00:06:21 drewish Exp $
 
 /** 
  * @file
@@ -19,7 +19,7 @@ function imagerotate(&$im, $angle, $bgcolor) {
   $width  = imagesx($im);
   $height = imagesy($im);
   // background color.
-  list($r, $b, $g, $a) = imageapi_hex2rgba($bgcolor);
+  list($r, $g, $b, $a) = imageapi_hex2rgba($bgcolor);
 
   switch ($angle) {
     case 270:
