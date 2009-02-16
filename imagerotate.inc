@@ -1,5 +1,5 @@
 <?php 
-// $Id: imagerotate.inc,v 1.4 2009/02/13 00:06:02 drewish Exp $
+// $Id: imagerotate.inc,v 1.5 2009/02/16 20:16:36 drewish Exp $
 
 /** 
  * @file
@@ -15,6 +15,10 @@ function imagerotate(&$im, $angle, $bgcolor) {
   if ($angle === 0) { 
     return $im;
   }
+  // imagerotate() in php's libgd rotates the image counterclockwise,
+  // this implementation rotates clockwise. The angle needs to be
+  // inverted to give the same behaviour between these implementations.
+  $angle = 360 - $angle;
 
   $width  = imagesx($im);
   $height = imagesy($im);
