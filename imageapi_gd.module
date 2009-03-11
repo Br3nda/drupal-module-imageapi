@@ -1,207 +1,36 @@
-<?php // $Id: imageapi_gd.module,v 1.16 2009/02/13 02:29:01 drewish Exp $
+<?php // $Id: imageapi_gd.module,v 1.17 2009/03/11 05:42:47 drewish Exp $
 
 /**
  * @file
  * GD2 toolkit functions
  */
 
-/**
- * Implementation of hook_imageapi_toolkit().
- *
- * this hook only gets called to see is a module implements the imageapi hooks...
- */
-function imageapi_gd_imageapi_toolkit() {
-}
-
-
-/**
- * Settings form for the toolkit.
- */
-function imageapi_gd_settings_form() {
-  $form['imageapi_jpeg_quality'] = array(
-    '#type' => 'textfield',
-    '#title' => t('JPEG quality'),
-    '#description' => t('Define the image quality for JPEG manipulations. Ranges from 0 to 100. Higher values mean better image quality, but bigger files.'),
-    '#size' => 10,
-    '#maxlength' => 3,
-    '#default_value' => variable_get('imageapi_jpeg_quality', 75),
-    '#field_suffix' => '%',
-  );
-  $form['imageapi_crop_background'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Crop background'),
-    '#description' => t('Hex string specifying the background color to use when cropping images. If not provided, will use the default. Examples: "ABC", "ABCD", "AABBCC", "AABBCCDD".'),
-    '#size' => 10,
-    '#maxlength' => 8,
-    '#default_value' => variable_get('imageapi_crop_background', ''),
-    '#field_prefix' => '#',
-  );
-  return system_settings_form($form);
-}
-
-function imageapi_gd_image_open($image) {
-  if ($image->res =  _gd_open($image->source, $image->info['extension'])) {
-    return $image;
-  }
-  return false;
-}
-
-function imageapi_gd_image_close($image, $destination) {
-  return _gd_close($image->res, $destination, $image->info['extension']);
-}
-
-function imageapi_gd_image_crop(&$image, $x, $y, $width, $height) {
-  // Create an image with the new width and height.
-  $res = _gd_create_tmp($image, $width, $height);
-
-  // Fill the background color if desired.
-  $background = variable_get('imageapi_crop_background', '');
-  if (!empty($background)) {
-    $background = imageapi_hex2rgba($background);
-    $background = imagecolorallocatealpha($res, $background[0], $background[1], $background[2], $background[3]);
-    imagefill($res, 0, 0, $background);
-  }
-
-  // Copy the source image to our new destination image. We use
-  // $image->info['width] instead of $width because we are copying
-  // using the source image's width and height, not the destination
-  // width and height.
-  if (!imagecopyresampled($res, $image->res, -$x, -$y, 0, 0, $image->info['width'], $image->info['height'], $image->info['width'], $image->info['height'])) {
-    return false;
-  }
-
-  // destroy the original image and return the modified image.
-  imagedestroy($image->res);
-  $image->res = $res;
-  $image->info['width'] = $width;
-  $image->info['height'] = $height;
-  return true;
-}
-
-function imageapi_gd_image_resize(&$image, $width, $height) {
-
-  $res = _gd_create_tmp($image, $width, $height);
-
-  if (!imagecopyresampled($res, $image->res, 0, 0, 0, 0, $width, $height, $image->info['width'], $image->info['height'])) {
-    return false;
-  }
-  imagedestroy($image->res);
-  // update image object
-  $image->res = $res;
-  $image->info['width'] = $width;
-  $image->info['height'] = $height;
-  return true;
-}
-
-function imageapi_gd_image_rotate(&$image, $degrees, $bgcolor) {
-  $res = imagerotate($image->res, 360 - $degrees, $bgcolor);
-  imagedestroy($image->res);
-  $image->res = $res;
-  $image->info['width'] = imagesx($res);
-  $image->info['height'] = imagesy($res);
-  return true;
-} 
-
-function imageapi_gd_image_sharpen(&$image, $radius, $sigma, $amount, $threshold) {
+function imageapi_gd_image_sharpen(stdImage $image, $radius, $sigma, $amount, $threshold) {
   $threshold = round($threshold * 255);
-  $image->res = _gd_unsharp_mask($image->res, $radius, $sigma, $amount, $threshold);
-  return true;
+  $image->resource = imageapi_gd_unsharp_mask($image->resource, $radius, $sigma, $amount, $threshold);
+  return TRUE;
 }
 
-function imageapi_gd_image_desaturate(&$image) {
-  return imagefilter($image->res, IMG_FILTER_GRAYSCALE);
-}
-
-/**
- * GD helper function to create an image resource from a file.
- */
-function _gd_open($file, $extension) {
-  $extension = str_replace('jpg', 'jpeg', $extension);
-  $open_func = 'imageCreateFrom'. $extension;
-  if (!function_exists($open_func)) {
-    return false;
-  }
-  
-  return $open_func($file);
-}
-
-/**
- * GD helper to write an image resource to a destination file.
- */
-function _gd_close($res, $destination, $extension) {
-  $extension = str_replace('jpg', 'jpeg', $extension);
-  $close_func = 'image'. $extension;
-  if (!function_exists($close_func)) {
-    return false;
-  }
-  if ($extension == 'jpeg') {
-    return $close_func($res, $destination, variable_get('imageapi_jpeg_quality', 75));
-  }
-  else {
-    return $close_func($res, $destination);
-  }
-}
-
+// Provide a implementation of imagerotate() and imagefilter() if they
+// weren't compiled into PHP.
 if (!function_exists('imagerotate')) {
   require_once drupal_get_path('module', 'imageapi') .'/imagerotate.inc';
 }
-
 if (!function_exists('imagefilter')) {
   require_once drupal_get_path('module', 'imageapi') .'/imagefilter.inc';
-}
-
-
-/** 
- * create a true color image preserving transparency from a provided
- * image.
- * @todo: add bgcolor setting to add a default background color.
- */
-function _gd_create_tmp($image, $width, $height) { 
-  $res = imagecreatetruecolor($width, $height);
-
-  // Alpha settings have no negative effect on jpegs, 
-  // but do help them support layering better for in-between steps.
-  imagealphablending($res, FALSE);
-  imagesavealpha($res, TRUE);
-  
-  if ($image->info['extension'] == 'gif' || $image->info['extension'] == 'jpg') {
-    // grab transparent color index from src.
-    $transparent = imagecolortransparent($image->res);
-
-    // if indexed transparency, lets preserve it.
-    if ($transparent >= 0) {
-      // get color(r,g,b) for index;
-      $color = imagecolorsforindex($image->res, $transparent);
-      // allocate to new image and get new index.
-      $transparent =  (isset($color['alpha'])) 
-        ? imagecolorallocatealpha($res, $color['red'], $color['green'], $color['blue'], $color['alpha'])
-        : imagecolorallocate($res, $color['red'], $color['green'], $color['blue']);
- 
-      $transparent = imagecolorallocate($res,  $transparent['red'], $transparent['green'],  $transparent['blue']);
-      // flood with our new transparent color.
-      imagefill($res, 0, 0, $transparent);
-      // tell the new image which color is transparent.
-      imagecolortransparent($res, $transparent);
-    }
-  }
-  elseif ($image->info['extension'] == 'png') {
-    $transparency = imagecolorallocatealpha($res, 0, 0, 0, 127);
-    imagefill($res, 0, 0, $transparency);
-  }
-  return $res;
 }
 
 /**
  * $sigma is currently unused for _gd_sharp_mask due to 3x3 convolution matrix limit.
  * we should explore properly implementing sigma.
  */
-function _gd_unsharp_mask($img, $radius, $sigma, $amount, $threshold)    {  
+function imageapi_gd_unsharp_mask($img, $radius, $sigma, $amount, $threshold)    {
 
   ////////////////////////////////////////////////////////////// 
   ////   
   ////                  Unsharp Mask for PHP - version 2.1.1   
   ////   
-  ////    Unsharp mask algorithm by Torstein Hønsi 2003-07.   
+  ////    Unsharp mask algorithm by Torstein Hï¿½nsi 2003-07.   
   ////             thoensi_at_netcom_dot_no.   
   ////               Please leave this notice.   
   ////   

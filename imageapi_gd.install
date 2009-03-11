@@ -1,5 +1,5 @@
 <?php
-// $Id: imageapi_gd.install,v 1.8 2008/08/01 18:52:22 dopry Exp $
+// $Id: imageapi_gd.install,v 1.9 2009/03/11 05:42:47 drewish Exp $
 
 function imageapi_gd_requirements($phase) {
   $requirements = array();
@@ -73,8 +73,10 @@ function imageapi_gd_requirements($phase) {
 }
 
 /**
- * Implementation of hook_uninstall().
+ * Remove the old JPEG quality setting.
  */
-function imageapi_gd_uninstall() {
+function imageapi_gd_update_7000() {
   variable_del('imageapi_jpeg_quality');
+  return array();
 }
+

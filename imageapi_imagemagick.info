@@ -1,6 +1,6 @@
-; $Id: imageapi_imagemagick.info,v 1.4 2008/12/23 21:35:35 drewish Exp $
+; $Id: imageapi_imagemagick.info,v 1.5 2009/03/11 05:42:47 drewish Exp $
 name = ImageAPI ImageMagick
 description = Command Line ImageMagick support.
-package = ImageCache
+package = ImageAPI
 core = 7.x
 files[] = imageapi_imagemagick.module
