@@ -1,4 +1,4 @@
-<?php // $Id: imageapi_gd.module,v 1.13.2.5 2009/03/18 08:05:39 drewish Exp $
+<?php // $Id: imageapi_gd.module,v 1.13.2.6 2009/04/13 19:10:38 drewish Exp $
 
 /**
  * @file
@@ -248,7 +248,7 @@ function imageapi_gd_image_desaturate(&$image) {
  * @return
  *   A GD image handle.
  */
-function imageapi_gd_create_tmp(stdClass $image, $width, $height) {
+function imageapi_gd_create_tmp($image, $width, $height) {
   $res = imagecreatetruecolor($width, $height);
 
   if ($image->info['extension'] == 'gif') {
