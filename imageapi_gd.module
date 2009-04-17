@@ -1,4 +1,4 @@
-<?php // $Id: imageapi_gd.module,v 1.8.2.6 2009/04/13 19:11:15 drewish Exp $
+<?php // $Id: imageapi_gd.module,v 1.8.2.7 2009/04/17 00:30:36 drewish Exp $
 
 /**
  * @file
@@ -152,7 +152,7 @@ function imageapi_gd_image_resize(&$image, $width, $height) {
  * @return
  *   TRUE or FALSE, based on success.
  */
- function imageapi_gd_image_rotate(&$image, $degrees, $bgcolor) {
+ function imageapi_gd_image_rotate(&$image, $degrees, $background) {
   // PHP installations using non-bundled GD do not have imagerotate.
   if (!function_exists('imagerotate')) {
     require_once drupal_get_path('module', 'imageapi_gd') .'/imagerotate.inc';
