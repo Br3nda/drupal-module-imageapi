@@ -1,4 +1,4 @@
-<?php  // $Id: imageapi_imagemagick.module,v 1.21 2009/03/11 05:42:47 drewish Exp $
+<?php  // $Id: imageapi_imagemagick.module,v 1.22 2009/04/17 17:57:53 drewish Exp $
 
 /**
  * @file
@@ -197,7 +197,7 @@ function _imageapi_imagemagick_convert_exec($command_args, &$output, &$errors) {
     1 => array('pipe', 'w'), // stdout
     2 => array('pipe', 'w')  // stderr
   );
-  if ($h = proc_open($convert_path .' '. $command_args, $descriptors, $pipes)) {
+  if ($h = proc_open($convert_path .' '. $command_args, $descriptors, $pipes, $_SERVER['DOCUMENT_ROOT'])) {
     $output = '';
     while (!feof($pipes[1])) {
       $output .= fgets($pipes[1]);
