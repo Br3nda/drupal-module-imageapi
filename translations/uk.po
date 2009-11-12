@@ -4,56 +4,51 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: ImageAPI (all releases)\n"
-"POT-Creation-Date: 2009-10-08 19:38+0000\n"
-"PO-Revision-Date: 2009-10-08 22:39+0200\n"
+"POT-Creation-Date: 2009-11-12 01:45+0000\n"
+"PO-Revision-Date: 2009-11-12 01:44+0000\n"
 "Language-Team: Ukrainian\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=3; plural=((((n%10)==1)&&((n%100)!=11))?(0):(((((n%10)>=2)&&((n%10)<=4))&&(((n%100)<10)||((n%100)>=20)))?(1):2));\n"
-"Last-Translator: podarok <podarok@ua.fm>\n"
-"X-Poedit-Language: Ukrainian\n"
-"X-Poedit-Country: UKRAINE\n"
-"X-Poedit-SourceCharset: utf-8\n"
+"Plural-Forms: nplurals=3; plural=((((n%10)==1)&&((n%100)!=11))?(0):(((((n%10)"
+">=2)&&((n%10)<=4))&&(((n%100)<10)||((n%100)>=20)))?(1):2));\n"
 
-msgid "List"
-msgstr "Список"
+msgid "!errors"
+msgstr "!errors"
+
+msgid "@name"
+msgstr "@name"
+
+msgid "Compression Quality"
+msgstr "Якість Стиску"
+
+msgid "Compression Quality must be a value between 0 and 100."
+msgstr "Якість стиску повинна бути між 0 і 100."
 
 msgid "Configure"
-msgstr "Управління"
+msgstr "Налаштувати"
 
-msgid "Not installed"
-msgstr "Не встановлено"
+msgid "Could not set permissions on destination file: %file"
+msgstr "Не вдається встановити дозвіл кінцевого файлу: %file"
 
-msgid "Path to the \"convert\" binary"
-msgstr "Шлях \"convert\" двійковий"
-
-msgid "JPEG quality"
-msgstr "Якість JPEG"
-
-msgid "ImageCache"
-msgstr "ImageCache"
-
-msgid "ImageMagick is a standalone program used to manipulate images. To use it, it must be installed on your server and you need to know where it is located. If you are unsure of the exact path consult your ISP or server administrator."
-msgstr "ImageMagick - автономна програма, використовувана, щоб маніпулювати зображеннями. Для її використання вона повинна бути встановлена на вашому сервері і потрібно знати, де вона розташована. Якщо ви невпевнені щодо точного шляху консультуйтеся з вашим ISP або з серверним адміністратором."
-
-msgid "Specify the complete path to the ImageMagic <kbd>convert</kbd> binary. For example: <kbd>/usr/bin/convert</kbd> or <kbd>C:\\Program Files\\ImageMagick-6.3.4-Q16\\convert.exe</kbd>"
-msgstr "Конкретизуйте повний шлях до ImageMagic <kbd>convert</kbd> двійковий. Наприклад: <kbd>/usr/bin/convert</kbd> або <kbd>C:Program FilesImageMagick-6.3.4-Q16convert.exe</kbd>"
+msgid ""
+"Define the image quality for JPEG manipulations. Ranges from 0 to 100. "
+"Higher values mean better image quality, but bigger files."
+msgstr ""
+"Визначите якість зображення для дій з JPEG. Значення вказуйте в діапазоні "
+"від 0 до 100. Більше значення означає краща якість, але більший розмір файлу."
 
 msgid "Display debugging information"
 msgstr "Показати налагоджувальну інформацію"
 
-msgid "ImageMagick command: @command"
-msgstr "ImageMagick команда: @command"
+msgid "GD !format Support"
+msgstr "GD Підтримка !format"
 
-msgid "ImageMagick output: @output"
-msgstr "ImageMagick випуск: @output"
+msgid "GD Image Filtering"
+msgstr "GD Фільтрування Зображень"
 
-msgid "ImageMagick reported an error: %error"
-msgstr "ImageMagick повідомив про помилку: %error"
-
-msgid "The GD library for PHP is missing or outdated. Please check the <a href=\"@url\">PHP image documentation</a> for information on how to correct this."
-msgstr "Бібліотека GD для PHP відсутня або застаріла. Будь-ласка, зверніться до <a href=\"@url\">документації по роботі PHP із зображеннями</a> щоб отримати інформацію по усуненню цієї помилки."
+msgid "GD Image Rotation"
+msgstr "GD Обертання Зображення"
 
 msgid "GD library"
 msgstr "Бібліотека GD"
@@ -61,8 +56,86 @@ msgstr "Бібліотека GD"
 msgid "ImageAPI"
 msgstr "ImageAPI"
 
-msgid "The selected image handling toolkit %toolkit can not correctly process %function."
-msgstr "Обраний механізм роботи із зображеннями '%toolkit' не може правильно обробити '%function'."
+msgid "ImageCache"
+msgstr "ImageCache"
+
+msgid "ImageMagick command: @command"
+msgstr "ImageMagick команда: @command"
+
+msgid ""
+"ImageMagick is a standalone program used to manipulate images. To use it, it "
+"must be installed on your server and you need to know where it is located. "
+"If you are unsure of the exact path consult your ISP or server administrator."
+msgstr ""
+"ImageMagick - автономна програма, використовувана, щоб маніпулювати "
+"зображеннями. Для її використання вона повинна бути встановлена на вашому "
+"сервері і потрібно знати, де вона розташована. Якщо ви невпевнені щодо "
+"точного шляху консультуйтеся з вашим ISP або з серверним адміністратором."
+
+msgid "ImageMagick output: @output"
+msgstr "ImageMagick випуск: @output"
+
+msgid "ImageMagick reported an error: %error"
+msgstr "ImageMagick повідомив про помилку: %error"
+
+msgid "JPEG quality"
+msgstr "Якість JPEG"
+
+msgid "List"
+msgstr "Список"
+
+msgid "Low Quality / Poor Performance"
+msgstr "Низька якість / Погана продуктивність"
+
+msgid "Not installed"
+msgstr "Не встановлено"
+
+msgid "PHP GD was not compiled with %format support."
+msgstr "PHP GD не був скомпільований з підтримкою формату %format."
+
+msgid "Path to the \"convert\" binary"
+msgstr "Шлях \"convert\" двійковий"
+
+msgid ""
+"Specify the complete path to the ImageMagic <kbd>convert</kbd> binary. For "
+"example: <kbd>/usr/bin/convert</kbd> or <kbd>C:\\Program Files\\ImageMagick-"
+"6.3.4-Q16\\convert.exe</kbd>"
+msgstr ""
+"Конкретизуйте повний шлях до ImageMagic <kbd>convert</kbd> двійковий. "
+"Наприклад: <kbd>/usr/bin/convert</kbd> або <kbd>C:Program FilesImageMagick-"
+"6.3.4-Q16convert.exe</kbd>"
+
+msgid ""
+"The %toolkit module is the only enabled image toolkit. Drupal will use it "
+"for resizing, cropping and other image manipulations."
+msgstr ""
+"Модуль %toolkit є єдиним включеним інструментарієм для обробки зображень. "
+"Drupal буде використовувати його для зміни розмірів, образки й інших дій над "
+"зображеннями."
+
+msgid ""
+"The GD library for PHP is missing or outdated. Please check the <a href="
+"\"@url\">PHP image documentation</a> for information on how to correct this."
+msgstr ""
+"Бібліотека GD для PHP відсутня або застаріла. Будь-ласка, зверніться до <a "
+"href=\"@url\">документації по роботі PHP із зображеннями</a> щоб отримати "
+"інформацію по усуненню цієї помилки."
+
+msgid ""
+"The selected image handling toolkit %toolkit can not correctly process %"
+"function."
+msgstr ""
+"Обраний механізм роботи із зображеннями '%toolkit' не може правильно "
+"обробити '%function'."
 
 msgid "Version information"
 msgstr "Інформація про версію"
+
+msgid "administer imageapi"
+msgstr "керування imageapi"
+
+msgid "imageapi"
+msgstr "imageapi"
+
+msgid "imageapi imagemagick"
+msgstr "imageapi imagemagick"
