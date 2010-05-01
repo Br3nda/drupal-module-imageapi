@@ -1,4 +1,4 @@
-# $Id: fr.po,v 1.1.2.1 2010/04/30 22:28:46 drewish Exp $
+# $Id: fr.po,v 1.1.2.2 2010/05/01 00:50:17 drewish Exp $
 #
 msgid ""
 msgstr ""
