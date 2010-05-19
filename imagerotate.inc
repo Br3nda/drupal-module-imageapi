@@ -1,5 +1,5 @@
 <?php 
-// $Id: imagerotate.inc,v 1.5 2009/02/16 20:16:36 drewish Exp $
+// $Id: imagerotate.inc,v 1.6 2010/05/19 18:55:54 drewish Exp $
 
 /** 
  * @file
@@ -75,13 +75,13 @@ function imagerotate(&$im, $angle, $bgcolor) {
   imagesavealpha($rotate, true);
 
   switch ($angle) {
-    case 270:
+    case 90:
       $rot_width--;
       for ($y = 0; $y < $height; ++$y)
         for ($x = 0; $x < $width; ++$x)
           imagesetpixel($rotate, $rot_width - $y, $x, imagecolorat($im, $x, $y));
       break;
-    case 90:
+    case 270:
       $rot_height--;
       for ($y = 0; $y < $height; ++$y)
         for ($x = 0; $x < $width; ++$x)
